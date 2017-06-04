@@ -2,12 +2,12 @@
  * Created by Hanna on 03.06.2017.
  */
 
-var selectedYear = document.getElementById("dropdownYear").value;
-var selectedGenre = document.getElementById("dropdownGenre").value;
+var selectedYear = 1950;//document.getElementById("dropdownYear").value;
+var selectedGenre = "History";//document.getElementById("dropdownGenre").value;
 var selectedGender = document.getElementById("dropdownGender").value;
 var isAverage = document.getElementById("checkboxAverage").checked;
 
-var svgLine = d3.select("svgLine"),
+var svgLine = d3.select("#svgLine"),
     margin = { top: 20, right: 80, bottom: 30, left: 50 },
     width = svgLine.attr("width") - margin.left - margin.right,
     height = svgLine.attr("height") - margin.top - margin.bottom,
@@ -21,16 +21,17 @@ var line = d3.line()
     .x(function (d) { return x(d.age); })
     .y(function (d) { return y(d.density); });
 
-var movieLine,
-	movieLabel;
+var movie,
+    movieLine;
+	//movieLabel;
 var pdf;
 loadData(init);
 
 
 
 function updateFilter(){
-    selectedYear = document.getElementById("dropdownYear").value;
-    selectedGenre = document.getElementById("dropdownGenre").value;
+    selectedYear = 1950;//document.getElementById("dropdownYear").value;
+    selectedGenre = "Crime";//document.getElementById("dropdownGenre").value;
     selectedGender = document.getElementById("dropdownGender").value;
     isAverage = document.getElementById("checkboxAverage").checked;
     console.log(selectedYear);
@@ -60,9 +61,9 @@ function parseInfo(data, i, columns) {
 
 function init(error, data, info) {
     if (error) { console.log(error); }
-    console.log(data[3]);
-    console.log(info[3]);
-    console.log(info[3]["genres"]);
+    console.log(data[0]);
+    console.log(info[0]);
+
     pdf = data.columns.slice(1).map(function (id) {
         return {
             id: id-1,
@@ -74,7 +75,6 @@ function init(error, data, info) {
             })
         };
     });
-    console.log(pdf[3]);
 
     var dropdown = document.getElementById("dropdownYear");
     var years = d3.nest()
@@ -134,13 +134,15 @@ function init(error, data, info) {
 
     // movie lines
     var selection = getSelection();
-     var movie = g.selectAll(".movie")
-        .data(selection)
+    var movie = g.selectAll(".movie")
+        .data(selection);
+    movie
         .enter().append("g")
         .attr("class", "movie");
 
-     //movieLine =
-        movie.append("path")
+    movieLine =
+    movie.enter()
+        .append("path")
         .attr("class", "line")
         .attr("d", function (d) { return line(d.values); })
         .on("mouseout", function(){
@@ -152,7 +154,8 @@ function init(error, data, info) {
         });
 
     //movieLabel =
-        movie.append("text")
+    movie.enter()
+        .append("text")
         .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
         .attr("transform", function (d) { return "translate(" + x(d.value.age) + "," + y(d.value.density) + ")"; })
         .attr("x", 3)
@@ -165,6 +168,9 @@ function init(error, data, info) {
 }
 
 function getSelection() {
+    console.log(selectedYear);
+    console.log(selectedGenre);
+
     var selection = pdf;
     // filter
     if (selectedYear != "all") {
@@ -190,7 +196,7 @@ function getSelection() {
             var tmp = c.values.map(function(d,i) {
                 return {
                     age:d.age,
-                    density: meanDensities
+                    density: meanDensities[i]
                 };
             });
             return {
@@ -202,17 +208,48 @@ function getSelection() {
                 };
         });
     }
+    selection.forEach(function(d){console.log(d.id);});
     return selection;
 }
 
 function update(error, data) {
-    var movie = g.selectAll(".movie")
-        .data(pdf.filter(function(o){return o.id==selectedYear}));
+    var selection = getSelection();
 
-        movie.exit().remove();
+    g.selectAll(".movie").remove();
+    //g.selectAll(".movie").remove();
+
+    var movie = g.selectAll(".movie")
+        .data(selection);
+
+    movie.exit().remove();
     movie
         .enter().append("g")
         .attr("class", "movie");
+
+    movieLine = movie.enter()
+        .append("path")
+        .attr("class", "line")
+        .attr("d", function (d) { return line(d.values); })
+        .on("mouseout", function(){
+            d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
+        })
+        .on("mouseover", function(){
+            d3.select(this)
+                .style({"stroke-opacity":"1","stroke-width":"1px"});
+        });
+
+    //movieLabel =
+    movie.enter()
+        .append("text")
+        .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
+        .attr("transform", function (d) { return "translate(" + x(d.value.age) + "," + y(d.value.density) + ")"; })
+        .attr("x", 3)
+        .attr("dy", "0.35em")
+        .style("font", "10px sans-serif")
+        .text(function (d) {
+            return "id:" + d.id + ", title:" + d["title"];
+        });
+    //g.removedNodes();
 
     /*
     console.log(selectedYear);
@@ -228,9 +265,9 @@ function update(error, data) {
     y.domain([
         d3.min(pdf, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
         d3.max(pdf, function (c) { return d3.max(c.values, function (d) { return d.density; }); })
-    ]);*/
+    ]);
     // Select the section we want to apply our changes to
-    var svg = d3.select("svg").transition();
+    var svg = d3.select("svgLine").transition();
 
     // Make the changes
     svg.select(".line")   // change the line
@@ -241,7 +278,7 @@ function update(error, data) {
         .call(d3.svg.axis().scale(x).orient("bottom"));
     svg.select(".y.axis") // change the y axis
         .duration(750)
-        .call(d3.svg.axis().scale(y).orient("left"));
+        .call(d3.svg.axis().scale(y).orient("left"));*/
 
 }
 
