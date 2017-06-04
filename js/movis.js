@@ -30,6 +30,9 @@ loadData(init);
 
 function updateFilter(){
     selectedYear = document.getElementById("dropdownYear").value;
+    selectedGenre = document.getElementById("dropdownGenre").value;
+    selectedGender = document.getElementById("dropdownGender").value;
+    isAverage = document.getElementById("checkboxAverage").checked;
     console.log(selectedYear);
     //movieLabel.remove();
     //movieLine.remove();
@@ -52,11 +55,6 @@ function parseInfo(data, i, columns) {
     data["title"] = data["title"];
     data["genres"] = data["genres"].split("|");
 
-    var dropdown = document.getElementById("dropdownYear");
-    var option = document.createElement("option");
-    option.text = data.year;
-    dropdown.add(option);
-
     return data;
 }
 
@@ -78,6 +76,30 @@ function init(error, data, info) {
     });
     console.log(pdf[3]);
 
+    var dropdown = document.getElementById("dropdownYear");
+    var years = d3.nest()
+        .key(function (d){return d.year;})
+        .entries(info)
+        .map(function (d){return d.key;}).sort();
+    years.forEach(function(d){
+        var option = document.createElement("option");
+        option.text = "" + d + "";
+        dropdown.add(option);
+    });
+    var combinedGenres = d3.nest()
+        .key(function (d){return d.genres;})
+        .entries(info).map(function(d){return d.key;});
+    genres = [];
+    combinedGenres.forEach(function(d){
+        genres = genres.concat(d.split(","));
+    });
+    genres = d3.nest().key(function(d){return d}).entries(genres).sort(function(x,y){return d3.ascending(x.key,y.key)});
+    dropdown = document.getElementById("dropdownGenre");
+    genres.forEach(function(d){
+        option = document.createElement("option");
+        option.text = d.key;
+        dropdown.add(option);
+    });
 
     x.domain(
         d3.extent(data, function (d) { return d.age; })
