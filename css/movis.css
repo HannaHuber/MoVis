@@ -1,0 +1,14 @@
+/* Movie lines in filtered view */
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-opacity: 0.5;
+    stroke-width: 0.5px;
+}
+
+/* Dropdown menu in filtered view */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    float: right;
+}
