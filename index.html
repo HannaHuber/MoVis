@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <html>
 <head>
-    <title> InfoVis </title>
+    <title>MoVis</title>
 
     <script type="text/javascript" src="http://mbostock.github.io/d3/d3.js"></script>
 
@@ -10,14 +10,28 @@
 </head>
 
 <body>
+    <h1 align="center" style="color:steelblue;">MoVis</h1>
     <div class="dropdown">
-        <p id="hDropdown" style="color:steelblue;">Filter ID
-            <select id="dropId" onchange="updateFilter()">
-                <option value="50">50</option>
-                <option value="1">1</option>
-                <option value="Average">Average</option>
-                <option value="All">All</option>
+        <p id="filterYear" style="color:steelblue;">Year
+            <select id="dropdownYear" onchange="updateFilter()">
+                <option value="all">All</option>
             </select>
+        </p>
+        <p id="filterGenre" style="color:steelblue;">Genre
+            <select id="dropdownGenre" onchange="updateFilter()">
+                <option value="all">All</option>
+            </select>
+        </p>
+        <p id="filterGender" style="color:steelblue;">Gender
+            <select id="dropdownGender" onchange="updateFilter()">
+                <option value="all">All</option>
+                <option value="f">Female</option>
+                <option value="m">Male</option>
+                <option value="cmp">Female vs. Male</option>
+            </select>
+        </p>
+        <p id="average"style="color:steelblue;">Average
+            <input type="checkbox" name="checkbox" id="checkboxAverage" value="FALSE" onclick="updateFilter()">
         </p>
     </div>
 
@@ -48,9 +62,9 @@
 
 
     <script src="https://d3js.org/d3-selection.v1.min.js"></script>
-   <!--<script src="https://d3js.org/d3-ease.v1.min.js"></script>
+  <script src="https://d3js.org/d3-ease.v1.min.js"></script>
    <script src="https://d3js.org/d3-timer.v1.min.js"></script>
-   <script src="https://d3js.org/d3-transition.v1.min.js"></script>-->
+   <script src="https://d3js.org/d3-transition.v1.min.js"></script> <!---->
 
 
 
