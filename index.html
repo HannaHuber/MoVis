@@ -3,27 +3,27 @@
 <html>
 <head>
     <title>MoVis</title>
-
     <script type="text/javascript" src="http://mbostock.github.io/d3/d3.js"></script>
-
     <link rel="stylesheet" href="css/movis.css">
 </head>
 
-<body>
+    <body>
     <h1 align="center" style="color:steelblue;">MoVis</h1>
-    <div class="dropdown">
+    <p align="center" class=subtitle" style="color:steelblue;">Movie Society Visualizer</p>
+
+    <div align="right" class="dropdown">
         <p id="filterYear" style="color:steelblue;">Year
-            <select id="dropdownYear" onchange="updateFilter()">
+            <select align="right" id="dropdownYear" onchange="updateFilter()">
                 <option value="all">All</option>
             </select>
         </p>
         <p id="filterGenre" style="color:steelblue;">Genre
-            <select id="dropdownGenre" onchange="updateFilter()">
+            <select align="right"id="dropdownGenre" onchange="updateFilter()">
                 <option value="all">All</option>
             </select>
         </p>
         <p id="filterGender" style="color:steelblue;">Gender
-            <select id="dropdownGender" onchange="updateFilter()">
+            <select align="right"id="dropdownGender" onchange="updateFilter()">
                 <option value="all">All</option>
                 <option value="f">Female</option>
                 <option value="m">Male</option>
@@ -83,13 +83,13 @@
 
 
 
-        /*var svg = d3.select("svg"),
+        /*svgLine svg = d3.selesvgLine"svg"),
         margin = { top: 20, right: 80, bottom: 30, left: 50 },
-        width = svg.attr("width") - margin.left - margin.right,
-        height = svg.attr("height") - margin.top - margin.bottom,
-        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        widtsvgLine svg.attr("width") - margin.left - margin.right,
+        heighsvgLine svg.attr("height") - margin.top - margin.bottom,
+        svgLine svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        var x = d3.scaleLinear().range([0, width]),
+        var x = d3.scaleLinear().svgLinege([0, width]),
             y = d3.scaleLinear().range([height, 0]),
             z = 0.1;//d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -102,7 +102,7 @@
 
 
         function parseAge(data, _, columns) {
-            data.age = +data.age;
+  svgLine       data.age = +data.age;
             for (var i = 1, t = 0, c; i < columns.length; ++i) {
                 data[c = columns[i]] =  +data[c]
             }
@@ -238,17 +238,16 @@
 
 
 function row(d) {
-            for (var i = 1, t = 0, c; i < columns.length; ++i) {
+            for (svgLine i = 1, t = 0,svgLine i < columns.length; ++i) {
                 d[c = columns[i]] = c;
             }
-            return d;
+           svgLineturn d;
         }
 	var ssv = d3.dsvFormat(";");
 
-        function row(d) {
+        function rsvgLined) {
             return {
-                Austria: +d.Austria,
-                United_States: +d["United States"],
+                Austria: +d.Austria,svgLine              United_States: +d["United States"],
                 Ambiguous: d.Ambiguous,
                 Unknown: +d.Unknown // convert "Length" column to number
             };

@@ -12,3 +12,24 @@
     display: inline-block;
     float: right;
 }
+
+.subtitle {
+    margin-top: 0px;
+    line-height: 0px;
+    font-size: 6px;
+}
+
+h1 {
+    margin-bottom: -20px;
+}
+
+
+
+.bar {
+    fill: steelblue;
+}
+
+.axis path {
+    display: none;
+}
+

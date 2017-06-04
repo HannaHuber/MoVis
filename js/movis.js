@@ -7,11 +7,11 @@ var selectedGenre = document.getElementById("dropdownGenre").value;
 var selectedGender = document.getElementById("dropdownGender").value;
 var isAverage = document.getElementById("checkboxAverage").checked;
 
-var svg = d3.select("svg"),
+var svgLine = d3.select("svgLine"),
     margin = { top: 20, right: 80, bottom: 30, left: 50 },
-    width = svg.attr("width") - margin.left - margin.right,
-    height = svg.attr("height") - margin.top - margin.bottom,
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    width = svgLine.attr("width") - margin.left - margin.right,
+    height = svgLine.attr("height") - margin.top - margin.bottom,
+    g = svgLine.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var x = d3.scaleLinear().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
@@ -283,7 +283,6 @@ function loadData(f2){
 .await(f2);
 }
 
-
 function readDSV(file, access) {
     d3.request(file)
     //.mimeType("text/plain")
@@ -291,30 +290,5 @@ function readDSV(file, access) {
         .get(draw);
 }
 
+/* BAR CHART */
 
-
-
-/* Dropdown menu */
-//var selectID = document.getElementById("dropId");
-//var selectedYear = selectID.value;
-
-/* When the user clicks on the button,
- toggle between hiding and showing the dropdown content
-function myFunction() {
-    document.getElementById("dropId").classList.toggle("show");
-}
-
-// Close the dropdown menu if the user clicks outside of it
-window.onclick = function(event) {
-    if (!event.target.matches('.dropbtn')) {
-
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        var i;
-        for (i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) {
-                openDropdown.classList.remove('show');
-            }
-        }
-    }
-}*/
