@@ -26,22 +26,19 @@ var line = d3.line()
     .y(function (d) { return y(d.density); });
 
 var movie,
-    movieLine;
-	//movieLabel;
+    movieLine,
+	movieLabel;
 var pdf;
 loadData(init);
 
 
 
 function updateFilter(){
-    selectedYear = document.getElementById("dropdownYear").value;
+    selectedYear = 1950; //document.getElementById("dropdownYear").value;
     selectedGenre = document.getElementById("dropdownGenre").value;
     selectedGender = document.getElementById("dropdownGender").value;
     isAverage = document.getElementById("checkboxAverage").checked;
     console.log(selectedYear);
-    //movieLabel.remove();
-    //movieLine.remove();
-    //loadData(parseAge,update);
     update();
 }
 
@@ -140,9 +137,6 @@ function init(error, data, info) {
     var selection = getSelection();
     var movie = svgLine.selectAll(".movie")
         .data(selection);
-    //movie
-       // .enter().append("g")
-        //.attr("class", "movie");
 
     movieLine =
         movie.enter()
@@ -150,15 +144,15 @@ function init(error, data, info) {
         .attr("class", "line")
         .attr("d", function (d) { return line(d.values); });
 
-        movieLine.on("mouseout", function(){
+        movie.on("mouseout", function(){
             d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
-        })
-        movieLine.on("mouseover", function(){
+        });
+        movie.on("mouseover", function(){
             d3.select(this)
                 .style({"stroke-opacity":"1","stroke-width":"1px"});
         });
 
-    //movieLabel =
+    movieLabel =
     movie.enter()
         .append("text")
         .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
@@ -212,8 +206,9 @@ function getSelection() {
                 values: tmp
                 };
         });
+        //selection = selection[0];
     }
-    selection.forEach(function(d){console.log(d.id);});
+    //selection.forEach(function(d){console.log(d.title);});
     return selection;
 }
 
@@ -221,20 +216,15 @@ function update(error, data) {
     var selection = getSelection();
 
     movieLine.remove();
+    movieLabel.remove();
 
-    //svgLine.selectAll(".movie").remove();
-    //g.selectAll(".movie").remove();
 
     var movie = svgLine.selectAll(".movie")
         .data(selection);
 
-    movie.exit().remove();
-    //movie
-     //   .enter()//.append("g")
-        //.attr("class", "movie");
+    //movie.exit().remove();
 
-
-    movieLine = movie.enter()//
+    movieLine = movie.enter()
         .append("path")
         .attr("class", "line")
         .attr("d", function (d) { return line(d.values); })
@@ -246,7 +236,7 @@ function update(error, data) {
                 .style({"stroke-opacity":"1","stroke-width":"1px"});
         });
 
-    //movieLabel =
+    movieLabel =
     movie.enter()
         .append("text")
         .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
@@ -257,82 +247,13 @@ function update(error, data) {
         .text(function (d) {
             return "id:" + d.id + ", title:" + d["title"];
         });
-    //g.removedNodes();
-
-    /*
-    console.log(selectedYear);
-    var pdf = data.columns.slice(1,100).map(function (id) {
-        return {
-            id: id,
-            values: data.map(function (d) {
-                return { age: d.age, density: d[id]/d3.sum(data,function(d){return d[id]}) };
-            })
-        };
-    });
-    x.domain(d3.extent(data, function (d) { return d.age; }));
-    y.domain([
-        d3.min(pdf, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
-        d3.max(pdf, function (c) { return d3.max(c.values, function (d) { return d.density; }); })
-    ]);
-    // Select the section we want to apply our changes to
-    var svg = d3.select("svgLine").transition();
-
-    // Make the changes
-    svg.select(".line")   // change the line
-        .duration(750)
-        .attr("d", function (d) { return line(d.values); });
-    svg.select(".x.axis") // change the x axis
-        .duration(750)
-        .call(d3.svg.axis().scale(x).orient("bottom"));
-    svg.select(".y.axis") // change the y axis
-        .duration(750)
-        .call(d3.svg.axis().scale(y).orient("left"));*/
-
 }
-
-/*function updateFilter(){
-    selectedYear = document.getElementById("dropId").value;
-	console.log(selectedYear);
-    loadData(parseAge,init);
-}*/
 
 function loadData(f2){
-    /*d3.request("./data/age_all_id_1-15k.csv")
-        .mimeType("text/plain")
-        .response(function(xhr) {return d3.dsvFormat(";").parse(xhr.responseText, f1)})
-        .get(f2);*/
-
-//d3.request("./raw/movie_meta.csv")
-//   .mimeType("text/plain")
-//   .response(function(xhr) {return d3.dsvFormat(";").parse(xhr.responseText, parseInfo
-
     d3.queue()
         .defer(d3.csv,"./data/age_all_id_1-15k_cs.csv", parseAge)
-         .defer(d3.csv,"./data/movie_info.csv",parseInfo)
-     // /*  .defer(readDSV, "./data/pdf/age_all_id_1-15k.csv", parseAge)
-//.defer(readDSV, "./data/meta/movie_meta.csv", parseInfo)
-//.awaitAll(draw);
-
-
-
-
-//   .defer(d3.csv,"./data/age_all_id_1-15k_cs_unknown15137.csv", f1)
-//.defer(d3.csv,"./data.csv", type)
-//.defer(d3.csv,"./data/pdf/originDF_all.csv")
-//.defer(d3.csv, "./data/pdf/originDF_m.csv")
-//.defer(d3.csv, "./data/pdf/originDF_f.csv")
-
-//.defer(d3.csv,"./data/pdf/ageDF_m.csv")
-//.defer(d3.csv,"./data/pdf/ageDF_f.csv")
-//.defer(d3.csv,"./data/pdf/genderDF.csv")*/
-.await(f2);
-}
-
-function readDSV(file, access) {
-    d3.request(file)
-    //.mimeType("text/plain")
-        .response(function(xhr) {return d3.dsvFormat(";").parse(xhr.responseText,access )})
-        .get(draw);
+        .defer(d3.csv,"./data/movie_info.csv",parseInfo)
+        .await(f2);
 }
 
 /* BAR CHART */
