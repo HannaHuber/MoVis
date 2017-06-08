@@ -42,7 +42,7 @@ function updateFilter(){
     update();
 }
 
-function parseAge(data, _, columns) {
+/*function parseAge(data, _, columns) {
     data.age = +data.age;
     for (var i = 1, t = 0, c; i < columns.length; ++i) {
         // start movie id at 0
@@ -75,12 +75,13 @@ function init(error, data, info) {
                 return { age: d.age, density: d[id]/d3.sum(data,function(d){return d[id]}) };
             })
         };
-    });
+    });*/
+function initLine() {
 
     var dropdown = document.getElementById("dropdownYear");
     var years = d3.nest()
         .key(function (d){return d.year;})
-        .entries(info)
+        .entries(pdf)
         .map(function (d){return d.key;}).sort();
     years.forEach(function(d){
         var option = document.createElement("option");
@@ -103,7 +104,7 @@ function init(error, data, info) {
     });
 
     x.domain(
-        d3.extent(data, function (d) { return d.age; })
+        d3.extent(pdf.map(function (c){return c.values.map(function (d){return d.age})})[0])
     );
     y.domain([
         d3.min(pdf, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
@@ -248,13 +249,12 @@ function update(error, data) {
             return "id:" + d.id + ", title:" + d["title"];
         });
 }
-
+/*
 function loadData(f2){
     d3.queue()
         .defer(d3.csv,"./data/age_all_id_1-15k_cs.csv", parseAge)
         .defer(d3.csv,"./data/movie_info.csv",parseInfo)
         .await(f2);
-}
+}*/
 
-/* BAR CHART */
 
