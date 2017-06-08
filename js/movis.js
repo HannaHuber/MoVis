@@ -2,8 +2,12 @@
  * Created by Hanna on 03.06.2017.
  */
 
-var selectedYear = 1950;//document.getElementById("dropdownYear").value;
-var selectedGenre = "History";//document.getElementById("dropdownGenre").value;
+// 1-based movie ids
+var startID = 306, // beginning of A
+    endID = 6834; // end of C
+
+var selectedYear = 1950; //document.getElementById("dropdownYear").value;
+var selectedGenre = document.getElementById("dropdownGenre").value;
 var selectedGender = document.getElementById("dropdownGender").value;
 var isAverage = document.getElementById("checkboxAverage").checked;
 
@@ -30,8 +34,8 @@ loadData(init);
 
 
 function updateFilter(){
-    selectedYear = 1950;//document.getElementById("dropdownYear").value;
-    selectedGenre = "Crime";//document.getElementById("dropdownGenre").value;
+    selectedYear = document.getElementById("dropdownYear").value;
+    selectedGenre = document.getElementById("dropdownGenre").value;
     selectedGender = document.getElementById("dropdownGender").value;
     isAverage = document.getElementById("checkboxAverage").checked;
     console.log(selectedYear);
@@ -64,7 +68,7 @@ function init(error, data, info) {
     console.log(data[0]);
     console.log(info[0]);
 
-    pdf = data.columns.slice(1).map(function (id) {
+    pdf = data.columns.slice(startID,endID +1).map(function (id) {
         return {
             id: id-1,
             title: info[id-1].title,
@@ -110,7 +114,7 @@ function init(error, data, info) {
     ]);
 
     // Axes
-    g.append("g")
+    svgLine.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x))
@@ -120,7 +124,7 @@ function init(error, data, info) {
             (height + margin.top ) + ")")
         .style("text-anchor", "middle")
         .text("Age");
-    g.append("g")
+    svgLine.append("g")
         .attr("class", "axis axis--y")
         .call(d3.axisLeft(y))
         .append("text")
@@ -134,21 +138,22 @@ function init(error, data, info) {
 
     // movie lines
     var selection = getSelection();
-    var movie = g.selectAll(".movie")
+    var movie = svgLine.selectAll(".movie")
         .data(selection);
-    movie
-        .enter().append("g")
-        .attr("class", "movie");
+    //movie
+       // .enter().append("g")
+        //.attr("class", "movie");
 
     movieLine =
-    movie.enter()
+        movie.enter()
         .append("path")
         .attr("class", "line")
-        .attr("d", function (d) { return line(d.values); })
-        .on("mouseout", function(){
+        .attr("d", function (d) { return line(d.values); });
+
+        movieLine.on("mouseout", function(){
             d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
         })
-        .on("mouseover", function(){
+        movieLine.on("mouseover", function(){
             d3.select(this)
                 .style({"stroke-opacity":"1","stroke-width":"1px"});
         });
@@ -215,18 +220,21 @@ function getSelection() {
 function update(error, data) {
     var selection = getSelection();
 
-    g.selectAll(".movie").remove();
+    movieLine.remove();
+
+    //svgLine.selectAll(".movie").remove();
     //g.selectAll(".movie").remove();
 
-    var movie = g.selectAll(".movie")
+    var movie = svgLine.selectAll(".movie")
         .data(selection);
 
     movie.exit().remove();
-    movie
-        .enter().append("g")
-        .attr("class", "movie");
+    //movie
+     //   .enter()//.append("g")
+        //.attr("class", "movie");
 
-    movieLine = movie.enter()
+
+    movieLine = movie.enter()//
         .append("path")
         .attr("class", "line")
         .attr("d", function (d) { return line(d.values); })
