@@ -5,13 +5,32 @@
     <title>MoVis</title>
     <script type="text/javascript" src="http://mbostock.github.io/d3/d3.js"></script>
     <link rel="stylesheet" href="css/movis.css">
-    <script type="text/javascript" src="js/movis-line.js"></script>
+    <script type="text/javascript" src="js/movis-bar.js"></script>
 </head>
 
-    <body>
+<body>
     <h1 align="center" style="color:steelblue;">MoVis</h1>
     <p align="center" class=subtitle" style="color:steelblue;">Movie Society Visualizer</p>
 
+    <!-- Bar View -->
+    <div align="right" class="dropdown">
+        <p  style="color:steelblue;">X-Axis
+            <select align="right" id="selectX" onchange="updateAxis()">
+                <option value="year">Year</option>
+                <option value="genre">Genre</option>
+            </select>
+        </p>
+        <p  style="color:steelblue;">Y-Axis
+            <select align="right"id="selectY" onchange="updateAxis()">
+                <option value="all">Age</option>
+                <option value="all">Origin</option>
+                <option value="all">Gender</option>
+            </select>
+        </p>
+    </div>
+    <svg id="svgBar" width="600" height="400"></svg>
+
+    <!-- Line View -->
     <div align="right" class="dropdown">
         <p id="filterYear" style="color:steelblue;">Year
             <select align="right" id="dropdownYear" onchange="updateFilter()">
@@ -35,40 +54,38 @@
             <input type="checkbox" name="checkbox" id="checkboxAverage" value="FALSE" checked onclick="updateFilter()">
         </p>
     </div>
+    <svg id="svgLine" width="600" height="300"></svg>
 
-    <svg id="svgLine" width="960" height="500"></svg>
+    <!-- Global Variables -->
+    <script type="text/javascript">
+        var pdf;
+    </script>
 
+    <!-- D3 Scripts -->
     <script src="//d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/d3-collection.v1.min.js"></script>
     <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
     <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
     <script src="https://d3js.org/d3-request.v1.min.js"></script>
     <script src="https://d3js.org/d3-queue.v3.min.js"></script>
-    
     <script src="https://d3js.org/d3-array.v1.min.js"></script>
     <script src="https://d3js.org/d3-collection.v1.min.js"></script>
     <script src="https://d3js.org/d3-color.v1.min.js"></script>
     <script src="https://d3js.org/d3-format.v1.min.js"></script>
     <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
-
-
     <script src="https://d3js.org/d3-scale.v1.min.js"></script>
     <script src="https://d3js.org/d3-axis.v1.min.js"></script>
     <script src="https://d3js.org/d3-path.v1.min.js"></script>
     <script src="https://d3js.org/d3-shape.v1.min.js"></script>
-
-
-
-
-
-
     <script src="https://d3js.org/d3-selection.v1.min.js"></script>
-  <script src="https://d3js.org/d3-ease.v1.min.js"></script>
-   <script src="https://d3js.org/d3-timer.v1.min.js"></script>
-   <script src="https://d3js.org/d3-transition.v1.min.js"></script> <!---->
+    <script src="https://d3js.org/d3-ease.v1.min.js"></script>
+    <script src="https://d3js.org/d3-timer.v1.min.js"></script>
+    <script src="https://d3js.org/d3-transition.v1.min.js"></script> <!---->
 
 
-    <script type="text/javascript" src="js/movis.js"></script>
+    <!-- MoVis Scripts -->
+    <script type="text/javascript" src="js/movis-line.js"></script>
+    <script type="text/javascript" src="js/movis-bar.js"></script>
 
 </body>
 </html>
