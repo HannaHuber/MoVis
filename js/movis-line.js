@@ -89,7 +89,7 @@ function init(error, data, info) {
     });
     var combinedGenres = d3.nest()
         .key(function (d){return d.genres;})
-        .entries(info).map(function(d){return d.key;});
+        .entries(pdf).map(function(d){return d.key;});
     genres = [];
     combinedGenres.forEach(function(d){
         genres = genres.concat(d.split(","));
