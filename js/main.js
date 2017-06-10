@@ -28,7 +28,7 @@ function parseAgeRow(data, i, columns) {
     }
     for (var i = 1, c; i < columns.length; ++i) {
         // start movie id at 0
-        data[c = columns[i]] =  100*data[c = columns[i]]/s;
+        data[c = columns[i]] /=  s;
     }
     return data;
 }
