@@ -4,6 +4,7 @@
 
 function loadData(f2){
     d3.queue()
+        .defer(d3.csv,"./data/age_all_id_1-15k_row.csv", parseAgeRow)
         .defer(d3.csv,"./data/age_all_id_1-15k_cs.csv", parseAge)
         .defer(d3.csv,"./data/movie_info.csv",parseInfo)
         .await(f2);
@@ -18,6 +19,20 @@ function parseAge(data, _, columns) {
     return data;
 }
 
+function parseAgeRow(data, i, columns) {
+    data.id = +data.id -1; // convert from 1-based in file to 0-based
+    for (var i = 1, s = 0, c; i < columns.length; ++i) {
+        // start movie id at 0
+        data[c = columns[i]] =  +data[c];
+        s += data[c = columns[i]];
+    }
+    for (var i = 1, c; i < columns.length; ++i) {
+        // start movie id at 0
+        data[c = columns[i]] =  100*data[c = columns[i]]/s;
+    }
+    return data;
+}
+
 function parseInfo(data, i, columns) {
     data.id = i;
     data.year = +data.year;
@@ -27,12 +42,12 @@ function parseInfo(data, i, columns) {
     return data;
 }
 
-function init(error, data, info) {
+function init(error, dataRow, data, info) {
     if (error) { console.log(error); }
     console.log(data[0]);
     console.log(info[0]);
 
-    pdf = data.columns.slice(startID,endID +1).map(function (id) {
+    pdf = data.columns.slice(1).map(function (id) {
         return {
             id: id-1,
             title: info[id-1].title,
@@ -44,7 +59,16 @@ function init(error, data, info) {
         };
     });
 
-    initLine();
+    pdfRow = dataRow.map(function(d,id){
+        d.title = info[id].title;
+        d.year = info[id].year;
+        d.genres = info[id].genres;
+        return d;
+    });
+
+    // draw
+    initBar(dataRow.columns);
+    //initLine();
 /*
 
     var dropdown = document.getElementById("dropdownYear");
