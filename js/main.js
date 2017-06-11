@@ -2,15 +2,17 @@
  * Created by Hanna on 08.06.2017.
  */
 
+/* Main method */
+window.onload = function () {
+    loadData(init);
+}
 
-loadData(init);
-
-function loadData(f2){
+function loadData(initMethod){
     d3.queue()
         .defer(d3.csv,"./data/age_all_id_1-15k_row.csv", parseAgeRow)
         .defer(d3.csv,"./data/age_all_id_1-15k_cs.csv", parseAge)
         .defer(d3.csv,"./data/movie_info.csv",parseInfo)
-        .await(f2);
+        .await(initMethod);
 }
 
 function parseAge(data, _, columns) {
