@@ -3,6 +3,7 @@
  */
 
 function initBar(columns) {
+    console.log("Initializing bar chart...");
 
     // Chart dimension + position
     var svgBar = d3.select("#svgBar"),
@@ -57,7 +58,7 @@ function initBar(columns) {
     x.domain(selection.map(function(d) { return d.year; }));
     z.domain(d3.extent(columns.slice(2)));
 
-    // Bars
+    // Draw Bars
     var serie = g.selectAll(".serie")
         .data(stack.keys(columns.slice(firstBinIdx))(selection))
         .enter().append("g")
@@ -78,7 +79,7 @@ function initBar(columns) {
         .attr("height", function(d) { return y(d[0]) - y(d[1]); })
         .attr("width", bandWidth);
 
-    // Append axes
+    // Draw axes
     g.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(-" + bandWidth/2 +" ," + height + ")")
@@ -89,7 +90,7 @@ function initBar(columns) {
         .attr("class", "axis axis--y")
         .call(d3.axisLeft(y).ticks(10, "%"));
 
-    // Append legend
+    // Draw legend
     var legend = serie.append("g")
         .attr("class", "legend")
         .attr("transform", function(d) { var d = d[d.length - 1]; return "translate(" + (x(d.data.year) + bandWidth) + "," + ((y(d[0]) + y(d[1])) / 2) + ")"; });
@@ -103,4 +104,6 @@ function initBar(columns) {
         .attr("fill", "#000")
         .style("font", "10px sans-serif")
         .text(function(d) { return d.key; });
+
+    console.log("Done.");
 }

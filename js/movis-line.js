@@ -9,13 +9,13 @@ var startID = 306, // beginning of A
 var selectedYear = 1950; //document.getElementById("dropdownYear").value;
 var selectedGenre = document.getElementById("dropdownGenre").value;
 var selectedGender = document.getElementById("dropdownGender").value;
-var isAverage = document.getElementById("checkboxAverage").checked;
+var isAverage = false; //document.getElementById("checkboxAverage").checked;
 
 var svgLine = d3.select("#svgLine"),
     marginLine = { top: 10, right: 50, bottom: 10, left: 50 },
-    widthLine = svgLine.attr("widthLine") - marginLine.left - marginLine.right,
-    heightLine = svgLine.attr("heightLine") - marginLine.top - marginLine.bottom,
-    gLine = svgLine.append("gLine").attr("transform", "translate(" + marginLine.left + "," + marginLine.top + ")");
+    widthLine = svgLine.attr("width") - marginLine.left - marginLine.right,
+    heightLine = svgLine.attr("height") - marginLine.top - marginLine.bottom,
+    gLine = svgLine.append("g").attr("transform", "translate(" + marginLine.left + "," + marginLine.top + ")");
 
 var xLine = d3.scaleLinear().range([0, widthLine]),
     yLine = d3.scaleLinear().range([heightLine, 0]);
@@ -29,7 +29,7 @@ var movieLine,
 	movieLabel;
 
 function updateFilter(){
-    selectedYear = 1950; //document.getElementById("dropdownYear").value;
+    selectedYear = document.getElementById("dropdownYear").value;
     selectedGenre = document.getElementById("dropdownGenre").value;
     selectedGender = document.getElementById("dropdownGender").value;
     isAverage = document.getElementById("checkboxAverage").checked;
@@ -37,8 +37,13 @@ function updateFilter(){
     updateLine();
 }
 
+/*
+ * Draw initial line chart
+ */
 function initLine() {
+    console.log("Initializing line chart...");
 
+    // Add items to dropdown menu
     var dropdown = document.getElementById("dropdownYear");
     var years = d3.nest()
         .key(function (d){return d.year;})
@@ -64,6 +69,7 @@ function initLine() {
         dropdown.add(option);
     });
 
+    // Axes domain
     xLine.domain(
         d3.extent(pdf.map(function (c){return c.values.map(function (d){return d.age})})[0])
     );
@@ -72,9 +78,9 @@ function initLine() {
         d3.max(pdf, function (c) { return d3.max(c.values, function (d) { return d.density; }); })
     ]);
 
-    // Axes
-    svgLine.append("gLine")
-        .attr("class", "axis axis--xLine")
+    // Draw axes
+    svgLine.append("g")
+        .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + heightLine + ")")
         .call(d3.axisBottom(xLine))
         .append("text")
@@ -83,54 +89,57 @@ function initLine() {
             (heightLine + marginLine.top ) + ")")
         .style("text-anchor", "middle")
         .text("Age");
-    svgLine.append("gLine")
-        .attr("class", "axis axis--yLine")
-        .call(d3.axisLeft(yLine))
+    svgLine.append("g")
+        .attr("class", "axis axis--y")
+        .call(d3.axisLeft(yLine).ticks(10, "%"))
         .append("text")
         .attr("transform", "rotate(-90)")
-        .attr("yLine", 0 - marginLine.left)
-        .attr("xLine",0 - (heightLine / 2))
+        .attr("y", 0 - marginLine.left)
+        .attr("x",0 - (heightLine / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Density");
 
 
-    // movie lines
+    // Draw movie lines
     var selection = getSelection();
     var movie = svgLine.selectAll(".movie")
         .data(selection);
-
     movieLine =
         movie.enter()
         .append("path")
         .attr("class", "line")
         .attr("d", function (d) { return line(d.values); });
+    movieLine.on("mouseout", function(){
+        d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
+    });
+    svgLine.selectAll(".line").on("mouseover", function(){
+        d3.select(this)
+            .style({"stroke-opacity":"1","stroke-width":"1px"});
+    });
 
-        movieLine.on("mouseout", function(){
-            d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
-        });
-        svgLine.selectAll(".line").on("mouseover", function(){
-            d3.select(this)
-                .style({"stroke-opacity":"1","stroke-width":"1px"});
-        });
-
+    // Draw labels
     movieLabel =
     movie.enter()
         .append("text")
         .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
         .attr("transform", function (d) { return "translate(" + xLine(d.value.age) + "," + yLine(d.value.density) + ")"; })
-        .attr("xLine", 3)
+        .attr("x", 3)
         .attr("dy", "0.35em")
         .style("font", "10px sans-serif")
         .text(function (d) {
             return "id:" + d.id + ", title:" + d["title"];
         });
 
+    console.log("Done.");
 }
 
+/*
+* Calculate filtered data
+*/
 function getSelection() {
-    console.log(selectedYear);
-    console.log(selectedGenre);
+    console.log("Filtering year: " + selectedYear);
+    console.log("Filtering genre: " +selectedGenre);
 
     var selection = pdf;
     // filter
@@ -175,15 +184,14 @@ function getSelection() {
 }
 
 function updateLine(error, data) {
-    var selection = getSelection();
-
+    // Remove old lines
     movieLine.remove();
     movieLabel.remove();
 
-
+    // Draw new lines
+    var selection = getSelection();
     var movie = svgLine.selectAll(".movie")
         .data(selection);
-
     movieLine = movie.enter()
         .append("path")
         .attr("class", "line")
@@ -195,13 +203,12 @@ function updateLine(error, data) {
             d3.select(this)
                 .style({"stroke-opacity":"1","stroke-width":"1px"});
         });
-
     movieLabel =
     movie.enter()
         .append("text")
         .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
         .attr("transform", function (d) { return "translate(" + xLine(d.value.age) + "," + yLine(d.value.density) + ")"; })
-        .attr("xLine", 3)
+        .attr("x", 3)
         .attr("dy", "0.35em")
         .style("font", "10px sans-serif")
         .text(function (d) {

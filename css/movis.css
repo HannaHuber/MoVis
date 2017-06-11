@@ -1,6 +1,6 @@
 /* Charts */
 .chart {
-    position: relative;
+    /*position: relative;*/
 }
 .line {
     fill: none;
@@ -20,6 +20,7 @@
     position: relative;
     display: inline-block;
     float: right;
+    bottom: 0px;
 }
 select{
     width:100px;

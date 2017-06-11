@@ -12,7 +12,7 @@
     <p align="center" class=subtitle" style="color:steelblue;">Movie Society Visualizer</p>
 
     <!-- Bar View -->
-    <div>
+
     <div align="right" class="dropdown">
         <p  style="color:steelblue;">X-Axis
             <select align="right" id="selectX" onchange="updateAxis()">
@@ -28,12 +28,12 @@
             </select>
         </p>
     </div>
+    <div id="divBar" align="left">
     <svg class="chart" id="svgBar" width="800" height="400"></svg>
     </div>
 
 
     <!-- Line View -->
-    <div>
     <div align="right" class="dropdown">
         <p id="filterYear" style="color:steelblue;">Year
             <select align="right" id="dropdownYear" onchange="updateFilter()">
@@ -57,7 +57,8 @@
             <input type="checkbox" name="checkbox" id="checkboxAverage" value="FALSE" checked onclick="updateFilter()">
         </p>
     </div>
-    <svg class="chart" id="svgLine" width="600" height="300"></svg>
+    <div id="divLine" align="left">
+    <svg class="chart" id="svgLine" width="800" height="400"></svg>
     </div>
 
     <!-- Global Variables -->

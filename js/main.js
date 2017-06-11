@@ -5,9 +5,10 @@
 /* Main method */
 window.onload = function () {
     loadData(init);
-}
+};
 
 function loadData(initMethod){
+    console.log("Loading data...");
     d3.queue()
         .defer(d3.csv,"./data/age_all_id_1-15k_row.csv", parseAgeRow)
         .defer(d3.csv,"./data/age_all_id_1-15k_cs.csv", parseAge)
@@ -16,6 +17,7 @@ function loadData(initMethod){
 }
 
 function parseAge(data, _, columns) {
+    console.log("Parsing age data...");
     data.age = +data.age;
     for (var i = 1, t = 0, c; i < columns.length; ++i) {
         // start movie id at 0
@@ -39,18 +41,20 @@ function parseAgeRow(data, i, columns) {
 }
 
 function parseInfo(data, i, columns) {
+    console.log("Parsing meta data...");
     data.id = i;
     data.year = +data.year;
     data["title"] = data["title"];
     data["genres"] = data["genres"].split("|");
-
     return data;
 }
 
 function init(error, dataRow, data, info) {
+    console.log("Processing data...");
     if (error) { console.log(error); }
 
-    pdf = data.columns.slice(1).map(function (id) {
+    // Distributions for line chart
+    pdf = data.columns.slice(startID,endID+1).map(function (id) {
         return {
             id: id-1,
             title: info[id-1].title,
@@ -62,6 +66,7 @@ function init(error, dataRow, data, info) {
         };
     });
 
+    // Distributions for bar chart
     pdfRow = dataRow.map(function(d,id){
         d.title = info[id].title;
         d.year = info[id].year;
@@ -69,7 +74,7 @@ function init(error, dataRow, data, info) {
         return d;
     });
 
-    // draw
+    // Draw charts
     initBar(dataRow.columns);
-    //initLine();
+    initLine();
 }
