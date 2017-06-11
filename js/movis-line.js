@@ -12,21 +12,20 @@ var selectedGender = document.getElementById("dropdownGender").value;
 var isAverage = document.getElementById("checkboxAverage").checked;
 
 var svgLine = d3.select("#svgLine"),
-    margin = { top: 10, right: 50, bottom: 10, left: 50 },
-    width = svgLine.attr("width") - margin.left - margin.right,
-    height = svgLine.attr("height") - margin.top - margin.bottom,
-    g = svgLine.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    marginLine = { top: 10, right: 50, bottom: 10, left: 50 },
+    widthLine = svgLine.attr("widthLine") - marginLine.left - marginLine.right,
+    heightLine = svgLine.attr("heightLine") - marginLine.top - marginLine.bottom,
+    gLine = svgLine.append("gLine").attr("transform", "translate(" + marginLine.left + "," + marginLine.top + ")");
 
-var x = d3.scaleLinear().range([0, width]),
-    y = d3.scaleLinear().range([height, 0]);
+var xLine = d3.scaleLinear().range([0, widthLine]),
+    yLine = d3.scaleLinear().range([heightLine, 0]);
 
 var line = d3.line()
     .curve(d3.curveLinear)
-    .x(function (d) { return x(d.age); })
-    .y(function (d) { return y(d.density); });
+    .x(function (d) { return xLine(d.age); })
+    .y(function (d) { return yLine(d.density); });
 
-var movie,
-    movieLine,
+var movieLine,
 	movieLabel;
 
 function updateFilter(){
@@ -35,7 +34,7 @@ function updateFilter(){
     selectedGender = document.getElementById("dropdownGender").value;
     isAverage = document.getElementById("checkboxAverage").checked;
     console.log(selectedYear);
-    update();
+    updateLine();
 }
 
 function initLine() {
@@ -65,32 +64,32 @@ function initLine() {
         dropdown.add(option);
     });
 
-    x.domain(
+    xLine.domain(
         d3.extent(pdf.map(function (c){return c.values.map(function (d){return d.age})})[0])
     );
-    y.domain([
+    yLine.domain([
         d3.min(pdf, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
         d3.max(pdf, function (c) { return d3.max(c.values, function (d) { return d.density; }); })
     ]);
 
     // Axes
-    svgLine.append("g")
-        .attr("class", "axis axis--x")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x))
+    svgLine.append("gLine")
+        .attr("class", "axis axis--xLine")
+        .attr("transform", "translate(0," + heightLine + ")")
+        .call(d3.axisBottom(xLine))
         .append("text")
         .attr("transform",
-            "translate(" + (width/2) + " ," +
-            (height + margin.top ) + ")")
+            "translate(" + (widthLine/2) + " ," +
+            (heightLine + marginLine.top ) + ")")
         .style("text-anchor", "middle")
         .text("Age");
-    svgLine.append("g")
-        .attr("class", "axis axis--y")
-        .call(d3.axisLeft(y))
+    svgLine.append("gLine")
+        .attr("class", "axis axis--yLine")
+        .call(d3.axisLeft(yLine))
         .append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x",0 - (height / 2))
+        .attr("yLine", 0 - marginLine.left)
+        .attr("xLine",0 - (heightLine / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Density");
@@ -119,8 +118,8 @@ function initLine() {
     movie.enter()
         .append("text")
         .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
-        .attr("transform", function (d) { return "translate(" + x(d.value.age) + "," + y(d.value.density) + ")"; })
-        .attr("x", 3)
+        .attr("transform", function (d) { return "translate(" + xLine(d.value.age) + "," + yLine(d.value.density) + ")"; })
+        .attr("xLine", 3)
         .attr("dy", "0.35em")
         .style("font", "10px sans-serif")
         .text(function (d) {
@@ -175,7 +174,7 @@ function getSelection() {
     return selection;
 }
 
-function update(error, data) {
+function updateLine(error, data) {
     var selection = getSelection();
 
     movieLine.remove();
@@ -184,8 +183,6 @@ function update(error, data) {
 
     var movie = svgLine.selectAll(".movie")
         .data(selection);
-
-    //movie.exit().remove();
 
     movieLine = movie.enter()
         .append("path")
@@ -203,8 +200,8 @@ function update(error, data) {
     movie.enter()
         .append("text")
         .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
-        .attr("transform", function (d) { return "translate(" + x(d.value.age) + "," + y(d.value.density) + ")"; })
-        .attr("x", 3)
+        .attr("transform", function (d) { return "translate(" + xLine(d.value.age) + "," + yLine(d.value.density) + ")"; })
+        .attr("xLine", 3)
         .attr("dy", "0.35em")
         .style("font", "10px sans-serif")
         .text(function (d) {
