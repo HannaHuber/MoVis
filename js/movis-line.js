@@ -12,7 +12,7 @@ var selectedGender = document.getElementById("dropdownGender").value;
 var isAverage = false; //document.getElementById("checkboxAverage").checked;
 
 var svgLine = d3.select("#svgLine"),
-    marginLine = { top: 10, right: 50, bottom: 10, left: 50 },
+    marginLine = { top: 10, right: 50, bottom: 50, left: 50 },
     widthLine = svgLine.attr("width") - marginLine.left - marginLine.right,
     heightLine = svgLine.attr("height") - marginLine.top - marginLine.bottom,
     gLine = svgLine.append("g").attr("transform", "translate(" + marginLine.left + "," + marginLine.top + ")");
@@ -79,7 +79,7 @@ function initLine() {
     ]);
 
     // Draw axes
-    svgLine.append("g")
+    gLine.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + heightLine + ")")
         .call(d3.axisBottom(xLine))
@@ -89,7 +89,7 @@ function initLine() {
             (heightLine + marginLine.top ) + ")")
         .style("text-anchor", "middle")
         .text("Age");
-    svgLine.append("g")
+    gLine.append("g")
         .attr("class", "axis axis--y")
         .call(d3.axisLeft(yLine).ticks(10, "%"))
         .append("text")
@@ -103,7 +103,7 @@ function initLine() {
 
     // Draw movie lines
     var selection = getSelection();
-    var movie = svgLine.selectAll(".movie")
+    var movie = gLine.selectAll(".movie")
         .data(selection);
     movieLine =
         movie.enter()
@@ -113,7 +113,7 @@ function initLine() {
     movieLine.on("mouseout", function(){
         d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
     });
-    svgLine.selectAll(".line").on("mouseover", function(){
+    movie.selectAll(".line").on("mouseover", function(){
         d3.select(this)
             .style({"stroke-opacity":"1","stroke-width":"1px"});
     });
