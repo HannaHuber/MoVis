@@ -1,45 +1,37 @@
-/* Movie lines in filtered view */
+/* Charts */
 .line {
     fill: none;
     stroke: steelblue;
     stroke-opacity: 0.5;
     stroke-width: 0.5px;
 }
+.bar {
+    fill: steelblue;
+}
+.axis path {
+    display: none;
+}
 
-/* Dropdown menu in filtered view */
+/* Dropdown menus*/
 .dropdown {
     position: relative;
     display: inline-block;
     float: right;
 }
-
 select{
     width:100px;
-
     -ms-box-sizing:content-box;
     -moz-box-sizing:content-box;
     box-sizing:content-box;
     -webkit-box-sizing:content-box;
 }
-
-
+/* Text */
 .subtitle {
     margin-top: 0px;
     line-height: 0px;
     font-size: 6px;
 }
-
 h1 {
     margin-bottom: -20px;
-}
-
-
-
-.bar {
-    fill: steelblue;
-}
-
-.axis path {
-    display: none;
 }
 

@@ -10,7 +10,6 @@ var svgBar = d3.select("#svgBar"),
 
 var x = d3.scaleBand()
     .range([0, width])
-    .paddingInner(0.001)
     .padding(0.01)
     .align(0.01);
 
@@ -21,13 +20,13 @@ var seq = [];
 for (var i=0; i<8;++i){
     seq[i] = d3.interpolateBlues(i/8);
 }
-seq[10] =  d3.interpolateBlues(1);
+seq[8] =  d3.interpolateBlues(1);
 var z = d3.scaleOrdinal()
     .range(seq);
 
 
-var stack = d3.stack()
-    .offset(d3.stackOffsetExpand);
+var stack = d3.stack();
+    //.offset(d3.stackOffsetExpand);
 
 var firstBinIdx = 1;
 
@@ -55,6 +54,8 @@ function initBar(columns) {
                 }
                 return x;
             });
+
+
     x.domain(selection.map(function(d) { return d.year; }));
     z.domain(columns.slice(firstBinIdx));
     //z.domain(d3.range(0,131));
@@ -66,7 +67,6 @@ function initBar(columns) {
         .attr("fill", function(d) {
             if (d.key=="-1"){return "grey";}
             else {
-                console.log(d.key);
                 return z(d.key);
                 }
 
@@ -84,7 +84,7 @@ function initBar(columns) {
             return y(d[0]) - y(d[1]); })
         .attr("width", 6);
 
-    /*g.append("g")
+    g.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x));
@@ -107,5 +107,5 @@ function initBar(columns) {
         .attr("dy", "0.35em")
         .attr("fill", "#000")
         .style("font", "10px sans-serif")
-        .text(function(d) { return d.key; });*/
+        .text(function(d) { return d.key; });
 }
