@@ -1,4 +1,7 @@
 /* Charts */
+.chart {
+    position: relative;
+}
 .line {
     fill: none;
     stroke: steelblue;
