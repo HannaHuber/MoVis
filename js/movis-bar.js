@@ -24,7 +24,6 @@ seq[8] =  d3.interpolateBlues(1);
 var z = d3.scaleOrdinal()
     .range(seq);
 
-
 var stack = d3.stack();
     //.offset(d3.stackOffsetExpand);
 

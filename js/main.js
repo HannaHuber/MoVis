@@ -47,8 +47,6 @@ function parseInfo(data, i, columns) {
 
 function init(error, dataRow, data, info) {
     if (error) { console.log(error); }
-    console.log(data[0]);
-    console.log(info[0]);
 
     pdf = data.columns.slice(1).map(function (id) {
         return {
