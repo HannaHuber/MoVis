@@ -36,19 +36,19 @@ function getXValues(pdfRow, columns){
             .sortKeys(d3.ascending)
             .rollup(function(v) {
                 var barData ={}         ;
-                for (var i=firstBinIdx; i< columns.length; i++){
-                    barData[columns[i]] = d3.mean(v, function(d) {
-                        return d[columns[i]]; });
-                }
+                columns.forEach (function(c){
+                    barData[c] = d3.mean(v, function(d) {
+                        return d[c]; });
+                })
                 return  barData;
             })
             .entries(pdfRow)
             .map(function(d) {
                 var barData = {};
                 barData.xKey = +d.key;
-                for (var i = firstBinIdx; i < columns.length; i++) {
-                    barData[columns[i]] = d.value[columns[i]];
-                }
+                columns.forEach (function(c){
+                    barData[c] = d.value[c];
+                })
                 return barData;
             });
     } else {
@@ -98,9 +98,9 @@ function getZValue(){
     // quantitative -last field is unknown
     if (selectedY == "age") {
         var seqColors = [];
-        for (var i=0; i<13;++i){
+        d3.range(0,13).forEach(function(i){
             seqColors[i] = d3.interpolateBlues(i/13);
-        }
+        })
         seqColors[13] =  d3.interpolateBlues(1);
         return d3.scaleQuantize()
                 .range(seqColors)
@@ -114,10 +114,10 @@ function getZValue(){
     // categorical - last two ambiguous/unknown
     } else {
         var cat = [];
-        for (var h = 0; h < columnsOrigin.length -2; h++ ) {
+        d3.range(0,columnsOrigin.length -2 ).forEach(function(h){
             cat.push(d3.hcl((h * 360/(columnsOrigin.length -2)) % 360, 50, 70));
             //cat.push(d3.hcl((h * 360/(columnsOrigin.length -2) + (h%5)*180) % 360, 50, 70));
-        }
+        })
 
         return d3.scaleOrdinal()
             .range(d3.shuffle(cat))
