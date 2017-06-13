@@ -6,11 +6,71 @@ var selectedX = document.getElementById("selectX").value;
 var selectedY= document.getElementById("selectY").value;
 var firstBinIdx = 0;
 
+function getGenreList(data){
+    var genreArrays = d3.nest()
+        .key(function (d){return d.genres;})
+        .entries(pdfAge).map(function(d){return d.key;});
+    var genreArray = [];
+    genreArrays.forEach(function(d){
+        genreArray = genreArray.concat(d.split(","));
+    });
+    return d3.nest()
+        .key(function(d){return d})
+        .entries(genreArray)
+        .sort(function(x,y){return d3.ascending(x.key,y.key)})
+        .map(function(d){return d.key});
+}
+
 function getXKey(d) {
     if (selectedX == "year") {
         return d.year;
     } else {
-        return d.genre;
+        return d.genres;
+    }
+}
+
+function getXValues(pdfRow, columns){
+    if (selectedX == "year") {
+        return d3.nest()
+            .key(function (d){return getXKey(d);})
+            .sortKeys(d3.ascending)
+            .rollup(function(v) {
+                var barData ={}         ;
+                for (var i=firstBinIdx; i< columns.length; i++){
+                    barData[columns[i]] = d3.mean(v, function(d) {
+                        return d[columns[i]]; });
+                }
+                return  barData;
+            })
+            .entries(pdfRow)
+            .map(function(d) {
+                var barData = {};
+                barData.xKey = +d.key;
+                for (var i = firstBinIdx; i < columns.length; i++) {
+                    barData[columns[i]] = d.value[columns[i]];
+                }
+                return barData;
+            });
+    } else {
+        var genres = getGenreList(pdfRow);
+        var xValues = [];
+        genres.forEach(function(g, i) {
+            // Get all movies of the genre
+            var group = pdfRow
+                .filter(function (c) {
+                    return c.genres.includes(g);
+                });
+            // Calculate mean over all movies for each y
+            var gMeans = {};
+            gMeans.xKey = g;
+             columns.forEach (function (o){
+                 gMeans[o] = d3.mean(group, function(d) {
+                     return d[o]; });
+             })
+            xValues[i] = gMeans;
+        });
+        console.log(xValues);
+        return xValues;
     }
 }
 
@@ -55,11 +115,12 @@ function getZValue(){
     } else {
         var cat = [];
         for (var h = 0; h < columnsOrigin.length -2; h++ ) {
-            cat.push(d3.hcl((h * 360/(columnsOrigin.length -2) + (h%5)*180) % 360, 50, 70));
+            cat.push(d3.hcl((h * 360/(columnsOrigin.length -2)) % 360, 50, 70));
+            //cat.push(d3.hcl((h * 360/(columnsOrigin.length -2) + (h%5)*180) % 360, 50, 70));
         }
 
         return d3.scaleOrdinal()
-            .range(cat)
+            .range(d3.shuffle(cat))
             /*["steelblue","indianred","#8dd3c7","#ffffb3",
             "#bebada","#fdb462","#b3de69","#fccde5",
             "#bc80bd","#ccebc5","#ffed6f"]*/
@@ -95,27 +156,7 @@ function initBar() {
     // Stack data
     var stack = d3.stack()
         .offset(d3.stackOffsetExpand);
-    var selection =
-        d3.nest()
-            .key(function (d){return getXKey(d);})
-            .sortKeys(d3.ascending)
-            .rollup(function(v) {
-                var barData ={}         ;
-                for (var i=firstBinIdx; i< columns.length; i++){
-                    barData[columns[i]] = d3.mean(v, function(d) {
-                        return d[columns[i]]; });
-                }
-                return  barData;
-            })
-            .entries(pdfRow)
-            .map(function(d) {
-                var barData = {};
-                barData.xKey = +d.key;
-                for (var i = firstBinIdx; i < columns.length; i++) {
-                        barData[columns[i]] = d.value[columns[i]];
-                }
-                return barData;
-            });
+    var selection = getXValues(pdfRow, columns);
 
     // Axes domain
     x.domain(selection.map(function(d) { return d.xKey; }));
