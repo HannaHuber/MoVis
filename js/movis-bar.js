@@ -2,7 +2,77 @@
  * Created by Hanna on 04.06.2017.
  */
 
-function initBar(columns) {
+var selectedX = document.getElementById("selectX").value;
+var selectedY= document.getElementById("selectY").value;
+var firstBinIdx = 0;
+
+function getXKey(d) {
+    if (selectedX == "year") {
+        return d.year;
+    } else {
+        return d.genre;
+    }
+}
+
+function getYColumns(){
+    if (selectedY == "age") {
+        return columnsAge;
+    } else if (selectedY == "gender") {
+        return columnsGender;
+    } else {
+        return columnsOrigin;
+    }
+}
+
+function getPDFRow(){
+    if (selectedY == "age") {
+        return pdfRowAge;
+    } else if (selectedY == "gender") {
+        return pdfRowGender;
+    } else {
+        return pdfRowOrigin;
+    }
+}
+
+function getZValue(){
+    // quantitative -last field is unknown
+    if (selectedY == "age") {
+        var seqColors = [];
+        for (var i=0; i<13;++i){
+            seqColors[i] = d3.interpolateBlues(i/13);
+        }
+        seqColors[13] =  d3.interpolateBlues(1);
+        return d3.scaleQuantize()
+                .range(seqColors)
+                .domain(d3.extent(columnsAge.slice(0,columnsAge.length-1)));
+    // categorical - last one unknown
+    } else if (selectedY == "gender") {
+        return d3.scaleOrdinal()
+            .range(["steelblue","indianred"])
+            .domain(columnsGender.slice(0,columnsAge.length-1));
+
+    // categorical - last two ambiguous/unknown
+    } else {
+        var cat = [];
+        for (var h = 0; h < columnsOrigin.length -2; h++ ) {
+            cat.push(d3.hcl((h * 360/(columnsOrigin.length -2) + (h%5)*180) % 360, 50, 70));
+        }
+
+        return d3.scaleOrdinal()
+            .range(cat)
+            /*["steelblue","indianred","#8dd3c7","#ffffb3",
+            "#bebada","#fdb462","#b3de69","#fccde5",
+            "#bc80bd","#ccebc5","#ffed6f"]*/
+            .domain(columnsOrigin.slice(0,columnsAge.length-2));
+    }
+}
+
+function initBar() {
+
+    var columns = getYColumns();
+    var pdfRow = getPDFRow();
+
+
     console.log("Initializing bar chart...");
 
     // Chart dimension + position
@@ -20,21 +90,14 @@ function initBar(columns) {
     var bandWidth = 8;
     var y = d3.scaleLinear()
         .rangeRound([height, 0]);
-    var seqColors = [];
-    for (var i=0; i<13;++i){
-        seqColors[i] = d3.interpolateBlues(i/13);
-    }
-    seqColors[13] =  d3.interpolateBlues(1);
-    var z = d3.scaleQuantize()
-        .range(seqColors);
+    var z = getZValue();
 
     // Stack data
     var stack = d3.stack()
         .offset(d3.stackOffsetExpand);
-    var firstBinIdx = 1;
     var selection =
         d3.nest()
-            .key(function (d){return d.year;})
+            .key(function (d){return getXKey(d);})
             .sortKeys(d3.ascending)
             .rollup(function(v) {
                 var barData ={}         ;
@@ -47,7 +110,7 @@ function initBar(columns) {
             .entries(pdfRow)
             .map(function(d) {
                 var barData = {};
-                barData.year = +d.key;
+                barData.xKey = +d.key;
                 for (var i = firstBinIdx; i < columns.length; i++) {
                         barData[columns[i]] = d.value[columns[i]];
                 }
@@ -55,8 +118,8 @@ function initBar(columns) {
             });
 
     // Axes domain
-    x.domain(selection.map(function(d) { return d.year; }));
-    z.domain(d3.extent(columns.slice(2)));
+    x.domain(selection.map(function(d) { return d.xKey; }));
+    //z.domain(d3.extent(columns.slice(2)));
 
     // Draw Bars
     var serie = g.selectAll(".serie")
@@ -64,7 +127,8 @@ function initBar(columns) {
         .enter().append("g")
         .attr("class", "serie")
         .attr("fill", function(d) {
-            if (d.key=="-1"){return "grey";}
+            if (d.key=="Unknown"){return "grey";}
+            else if (d.key=="Ambiguous"){return "lightgrey";}
             else {
                 return z(d.key);
                 }
@@ -74,8 +138,10 @@ function initBar(columns) {
         .data(function(d) {
             return d; })
         .enter().append("rect")
-        .attr("x", function(d) {return x(d.data.year);})
-        .attr("y", function(d) { return y(d[1]); })
+        .attr("x", function(d) {
+            return x(d.data.xKey);})
+        .attr("y", function(d) {
+            return y(d[1]); })
         .attr("height", function(d) { return y(d[0]) - y(d[1]); })
         .attr("width", bandWidth);
 
@@ -93,7 +159,7 @@ function initBar(columns) {
     // Draw legend
     var legend = serie.append("g")
         .attr("class", "legend")
-        .attr("transform", function(d) { var d = d[d.length - 1]; return "translate(" + (x(d.data.year) + bandWidth) + "," + ((y(d[0]) + y(d[1])) / 2) + ")"; });
+        .attr("transform", function(d) { var d = d[d.length - 1]; return "translate(" + (x(d.data.xKey) + bandWidth) + "," + ((y(d[0]) + y(d[1])) / 2) + ")"; });
     legend.append("line")
         .attr("x1", -6)
         .attr("x2", 6)

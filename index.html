@@ -22,9 +22,9 @@
         </p>
         <p  style="color:steelblue;">Y-Axis
             <select align="right"id="selectY" onchange="updateAxis()">
-                <option value="all">Age</option>
-                <option value="all">Origin</option>
-                <option value="all">Gender</option>
+                <option value="age">Age</option>
+                <option value="gender">Gender</option>
+                <option value="origin">Origin</option>
             </select>
         </p>
     </div>
@@ -36,17 +36,17 @@
     <!-- Line View -->
     <div align="right" class="dropdown">
         <p id="filterYear" style="color:steelblue;">Year
-            <select align="right" id="dropdownYear" onchange="updateFilter()">
+            <select align="right" id="selectYear" onchange="updateFilter()">
                 <option value="all">All</option>
             </select>
         </p>
         <p id="filterGenre" style="color:steelblue;">Genre
-            <select align="right"id="dropdownGenre" onchange="updateFilter()">
+            <select align="right" id="selectGenre" onchange="updateFilter()">
                 <option value="all">All</option>
             </select>
         </p>
         <p id="filterGender" style="color:steelblue;">Gender
-            <select align="right"id="dropdownGender" onchange="updateFilter()">
+            <select align="right" id="selectGender" onchange="updateFilter()">
                 <option value="all">All</option>
                 <option value="f">Female</option>
                 <option value="m">Male</option>
@@ -63,8 +63,15 @@
 
     <!-- Global Variables -->
     <script type="text/javascript">
-        var pdf,
-            pdfRow;
+        var pdfAge,
+            pdfRowAge,
+            pdfGender,
+            pdfRowGender,
+            pdfOrigin,
+            pdfRowOrigin,
+            columnsAge,
+            columnsGender,
+            columnsOrigin;
     </script>
 
     <!-- D3 Scripts -->

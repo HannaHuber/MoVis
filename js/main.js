@@ -10,7 +10,9 @@ window.onload = function () {
 function loadData(initMethod){
     console.log("Loading data...");
     d3.queue()
-        .defer(d3.csv,"./data/age_all_id_1-15k_row.csv", parseAgeRow)
+        .defer(d3.csv,"./data/ageDF_all.csv", parseRow)
+        .defer(d3.csv,"./data/genderDF.csv", parseRow)
+        .defer(d3.csv,"./data/originDF_all.csv", parseRow)
         .defer(d3.csv,"./data/age_all_id_1-15k_cs.csv", parseAge)
         .defer(d3.csv,"./data/movie_info.csv",parseInfo)
         .await(initMethod);
@@ -26,16 +28,16 @@ function parseAge(data, _, columns) {
     return data;
 }
 
-function parseAgeRow(data, i, columns) {
-    data.id = +data.id -1; // convert from 1-based in file to 0-based
-    for (var i = 1, s = 0, c; i < columns.length; ++i) {
+function parseRow(data, i, columns) {
+    data.id = i; // convert from 1-based in file to 0-based
+    for (var j = 0, s = 0, c; j < columns.length; ++j) {
         // start movie id at 0
-        data[c = columns[i]] =  +data[c];
-        s += data[c = columns[i]];
+        data[c = columns[j]] =  +data[c];
+        s += data[c = columns[j]];
     }
-    for (var i = 1, c; i < columns.length; ++i) {
+    for (var j = 0, c; j < columns.length; ++j) {
         // start movie id at 0
-        data[c = columns[i]] /=  s;
+        data[c = columns[j]] /=  s;
     }
     return data;
 }
@@ -49,32 +51,55 @@ function parseInfo(data, i, columns) {
     return data;
 }
 
-function init(error, dataRow, data, info) {
+function addInfoToBarData(data, info) {
+    return data.map(function(d,id){
+            d.title = info[id].title;
+            d.year = info[id].year;
+            d.genres = info[id].genres;
+            return d;
+    });
+}
+
+function init(error, dataRowAge, dataRowGender, dataRowOrigin, dataAge, info) {
     console.log("Processing data...");
     if (error) { console.log(error); }
 
     // Distributions for line chart
-    pdf = data.columns.slice(startID,endID+1).map(function (id) {
+    pdfAge = dataAge.columns.slice(startID,endID+1).map(function (id) {
         return {
             id: id-1,
             title: info[id-1].title,
             year: info[id-1].year,
             genres: info[id-1].genres,
-            values: data.map(function (d) {
-                return { age: d.age, density: d[id]/d3.sum(data,function(d){return d[id]}) };
+            values: dataAge.map(function (d) {
+                return { age: d.age, density: d[id]/d3.sum(dataAge,function(d){return d[id]}) };
             })
         };
     });
 
     // Distributions for bar chart
-    pdfRow = dataRow.map(function(d,id){
+    pdfRowAge = addInfoToBarData(dataRowAge, info)
+        /*dataRowAge.map(function(d,id){
         d.title = info[id].title;
         d.year = info[id].year;
         d.genres = info[id].genres;
         return d;
-    });
+    })*/;
+    pdfRowGender = addInfoToBarData(dataRowGender, info)
+    /*dataRowGender.map(function(d,id){
+     d.title = info[id].title;
+     d.year = info[id].year;
+     d.genres = info[id].genres;
+     return d;
+     })*/;
+     pdfRowOrigin = addInfoToBarData(dataRowOrigin, info);
+
+    // Store labels
+    columnsAge = dataRowAge.columns;
+    columnsGender = dataRowGender.columns;
+    columnsOrigin = dataRowOrigin.columns;
 
     // Draw charts
-    initBar(dataRow.columns);
+    initBar();
     initLine();
 }

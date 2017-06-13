@@ -6,9 +6,9 @@
 var startID = 306, // beginning of A
     endID = 6834; // end of C
 
-var selectedYear = 1950; //document.getElementById("dropdownYear").value;
-var selectedGenre = document.getElementById("dropdownGenre").value;
-var selectedGender = document.getElementById("dropdownGender").value;
+var selectedYear = 1950; //document.getElementById("selectYear").value;
+var selectedGenre = document.getElementById("selectGenre").value;
+var selectedGender = document.getElementById("selectGender").value;
 var isAverage = false; //document.getElementById("checkboxAverage").checked;
 
 var svgLine = d3.select("#svgLine"),
@@ -29,9 +29,9 @@ var movieLine,
 	movieLabel;
 
 function updateFilter(){
-    selectedYear = document.getElementById("dropdownYear").value;
-    selectedGenre = document.getElementById("dropdownGenre").value;
-    selectedGender = document.getElementById("dropdownGender").value;
+    selectedYear = document.getElementById("selectYear").value;
+    selectedGenre = document.getElementById("selectGenre").value;
+    selectedGender = document.getElementById("selectGender").value;
     isAverage = document.getElementById("checkboxAverage").checked;
     console.log(selectedYear);
     updateLine();
@@ -44,10 +44,10 @@ function initLine() {
     console.log("Initializing line chart...");
 
     // Add items to dropdown menu
-    var dropdown = document.getElementById("dropdownYear");
+    var dropdown = document.getElementById("selectYear");
     var years = d3.nest()
         .key(function (d){return d.year;})
-        .entries(pdf)
+        .entries(pdfAge)
         .map(function (d){return d.key;}).sort();
     years.forEach(function(d){
         var option = document.createElement("option");
@@ -56,13 +56,13 @@ function initLine() {
     });
     var combinedGenres = d3.nest()
         .key(function (d){return d.genres;})
-        .entries(pdf).map(function(d){return d.key;});
+        .entries(pdfAge).map(function(d){return d.key;});
     genres = [];
     combinedGenres.forEach(function(d){
         genres = genres.concat(d.split(","));
     });
     genres = d3.nest().key(function(d){return d}).entries(genres).sort(function(x,y){return d3.ascending(x.key,y.key)});
-    dropdown = document.getElementById("dropdownGenre");
+    dropdown = document.getElementById("selectGenre");
     genres.forEach(function(d){
         option = document.createElement("option");
         option.text = d.key;
@@ -71,11 +71,11 @@ function initLine() {
 
     // Axes domain
     xLine.domain(
-        d3.extent(pdf.map(function (c){return c.values.map(function (d){return d.age})})[0])
+        d3.extent(pdfAge.map(function (c){return c.values.map(function (d){return d.age})})[0])
     );
     yLine.domain([
-        d3.min(pdf, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
-        d3.max(pdf, function (c) { return d3.max(c.values, function (d) { return d.density; }); })
+        d3.min(pdfAge, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
+        d3.max(pdfAge, function (c) { return d3.max(c.values, function (d) { return d.density; }); })
     ]);
 
     // Draw axes
@@ -141,7 +141,7 @@ function getSelection() {
     console.log("Filtering year: " + selectedYear);
     console.log("Filtering genre: " +selectedGenre);
 
-    var selection = pdf;
+    var selection = pdfAge;
     // filter
     if (selectedYear != "all") {
         selection = selection.filter(function (c) {
