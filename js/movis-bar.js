@@ -230,6 +230,5 @@ function updateBar(){
     svgBar.selectAll(".axis.axis--x").remove();
     svgBar.selectAll(".axis.axis--y").remove();
 
-
     initBar();
 }

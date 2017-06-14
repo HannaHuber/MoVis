@@ -19,7 +19,7 @@ var xLine = d3.scalePoint().range([0, widthLine]),
 var line = d3.line()
     .curve(d3.curveLinear)
     .x(function (d) {
-        return xLine(d.age); })
+        return xLine(d[currentY]); })
     .y(function (d) {
         return yLine(d.density); });
 
@@ -33,7 +33,37 @@ function updateFilter(){
     selectedGender = document.getElementById("selectGender").value;
     isAverage = document.getElementById("checkboxAverage").checked;
     console.log(selectedYear);
-    updateLine();
+
+    // Remove old lines
+    movieLine.remove();
+    movieLabel.remove();
+
+    // Draw new lines
+    var selection = getSelection();
+    var movie = svgLine.selectAll(".movie")
+        .data(selection);
+    movieLine = movie.enter()
+        .append("path")
+        .attr("class", "line")
+        .attr("d", function (d) { return line(d.values); })
+        .on("mouseout", function(){
+            d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
+        })
+        .on("mouseover", function(){
+            d3.select(this)
+                .style({"stroke-opacity":"1","stroke-width":"1px"});
+        });
+    movieLabel =
+        movie.enter()
+            .append("text")
+            .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
+            .attr("transform", function (d) { return "translate(" + xLine(d.value[currentY]) + "," + yLine(d.value.density) + ")"; })
+            .attr("x", 3)
+            .attr("dy", "0.35em")
+            .style("font", "10px sans-serif")
+            .text(function (d) {
+                return "id:" + d.id + ", title:" + d["title"];
+            });
 }
 
 function getCurrentPDF(){
@@ -83,8 +113,8 @@ function initLine() {
 
     // Axes domain
     xLine.domain(
-        pdf.map(function (c){return c.values.map(function (d){return d.age})})[0]
-        //d3.extent(pdf.map(function (c){return c.values.map(function (d){return d.age})})[0])
+        pdf.map(function (c){return c.values.map(function (d){return d[currentY]})})[0]
+        //d3.extent(pdf.map(function (c){return c.values.map(function (d){return d[currentY]})})[0])
     );
     yLine.domain([
         d3.min(pdf, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
@@ -136,7 +166,7 @@ function initLine() {
     movie.enter()
         .append("text")
         .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
-        .attr("transform", function (d) { return "translate(" + xLine(d.value.age) + "," + yLine(d.value.density) + ")"; })
+        .attr("transform", function (d) { return "translate(" + xLine(d.value[currentY]) + "," + yLine(d.value.density) + ")"; })
         .attr("x", 3)
         .attr("dy", "0.35em")
         .style("font", "10px sans-serif")
@@ -178,7 +208,7 @@ function getSelection() {
             }
             var tmp = c.values.map(function(d,i) {
                 return {
-                    age:d.age,
+                    age:d[currentY],
                     density: meanDensities[i]
                 };
             });
@@ -197,36 +227,15 @@ function getSelection() {
 }
 
 function updateLine(error, data) {
-    // Remove old lines
+
+    // Remove old lines + axes
     movieLine.remove();
     movieLabel.remove();
+    svgLine.selectAll(".axis.axis--x").remove();
+    svgLine.selectAll(".axis.axis--y").remove();
 
     // Draw new lines
-    var selection = getSelection();
-    var movie = svgLine.selectAll(".movie")
-        .data(selection);
-    movieLine = movie.enter()
-        .append("path")
-        .attr("class", "line")
-        .attr("d", function (d) { return line(d.values); })
-        .on("mouseout", function(){
-            d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
-        })
-        .on("mouseover", function(){
-            d3.select(this)
-                .style({"stroke-opacity":"1","stroke-width":"1px"});
-        });
-    movieLabel =
-    movie.enter()
-        .append("text")
-        .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
-        .attr("transform", function (d) { return "translate(" + xLine(d.value.age) + "," + yLine(d.value.density) + ")"; })
-        .attr("x", 3)
-        .attr("dy", "0.35em")
-        .style("font", "10px sans-serif")
-        .text(function (d) {
-            return "id:" + d.id + ", title:" + d["title"];
-        });
+    initLine();
 }
 
 

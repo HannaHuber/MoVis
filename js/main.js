@@ -101,3 +101,8 @@ function init(error, dataRowAge, dataRowGender, dataRowOrigin, info) {
     initBar();
     initLine();
 }
+
+function update() {
+    updateBar();
+    updateLine();
+}
