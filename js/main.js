@@ -65,7 +65,7 @@ function init(error, dataRowAge, dataRowGender, dataRowOrigin, dataAge, info) {
     if (error) { console.log(error); }
 
     // Distributions for line chart
-    pdfAge = dataAge.columns.slice(startID,endID+1).map(function (id) {
+    /*pdfAge = dataAge.columns.slice(startID,endID+1).map(function (id) {
         return {
             id: id-1,
             title: info[id-1].title,
@@ -75,7 +75,7 @@ function init(error, dataRowAge, dataRowGender, dataRowOrigin, dataAge, info) {
                 return { age: d.age, density: d[id]/d3.sum(dataAge,function(d){return d[id]}) };
             })
         };
-    });
+    });*/
 
     // Distributions for bar chart
     pdfRowAge = addInfoToBarData(dataRowAge, info);
@@ -86,6 +86,23 @@ function init(error, dataRowAge, dataRowGender, dataRowOrigin, dataAge, info) {
     columnsAge = dataRowAge.columns;
     columnsGender = dataRowGender.columns;
     columnsOrigin = dataRowOrigin.columns;
+
+    pdfAge = pdfRowAge.map(function(d){
+        data = {};
+        data.id = d.id;
+        data.title = d.title;
+        data.genres = d.genres;
+        data.year = d.year;
+        var values = [];
+        columnsAge.forEach(function(c,j) {
+            tmp = {};
+            tmp.age = c;
+            tmp.density = d[c];
+            values[j] = tmp;
+        });
+        data.values = values;
+        return data;
+    });
 
     // Draw charts
     initBar();

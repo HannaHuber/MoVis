@@ -104,7 +104,7 @@ function getZValue(){
         var seqColors = [];
         d3.range(0,13).forEach(function(i){
             seqColors[i] = d3.interpolateBlues(i/13);
-        })
+        });
         seqColors[13] =  d3.interpolateBlues(1);
         return d3.scaleQuantize()
                 .range(seqColors)
@@ -121,7 +121,7 @@ function getZValue(){
         d3.range(0,columnsOrigin.length -2 ).forEach(function(h){
             cat.push(d3.hcl((h * 360/(columnsOrigin.length -2)) % 360, 50, 70));
             //cat.push(d3.hcl((h * 360/(columnsOrigin.length -2) + (h%5)*180) % 360, 50, 70));
-        })
+        });
 
         return d3.scaleOrdinal()
             .range(d3.shuffle(cat))

@@ -17,13 +17,15 @@ var svgLine = d3.select("#svgLine"),
     heightLine = svgLine.attr("height") - marginLine.top - marginLine.bottom,
     gLine = svgLine.append("g").attr("transform", "translate(" + marginLine.left + "," + marginLine.top + ")");
 
-var xLine = d3.scaleLinear().range([0, widthLine]),
+var xLine = d3.scalePoint().range([0, widthLine]),
     yLine = d3.scaleLinear().range([heightLine, 0]);
 
 var line = d3.line()
     .curve(d3.curveLinear)
-    .x(function (d) { return xLine(d.age); })
-    .y(function (d) { return yLine(d.density); });
+    .x(function (d) {
+        return xLine(d.age); })
+    .y(function (d) {
+        return yLine(d.density); });
 
 var movieLine,
 	movieLabel;
@@ -71,7 +73,8 @@ function initLine() {
 
     // Axes domain
     xLine.domain(
-        d3.extent(pdfAge.map(function (c){return c.values.map(function (d){return d.age})})[0])
+        pdfAge.map(function (c){return c.values.map(function (d){return d.age})})[0]
+        //d3.extent(pdfAge.map(function (c){return c.values.map(function (d){return d.age})})[0])
     );
     yLine.domain([
         d3.min(pdfAge, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
@@ -82,7 +85,7 @@ function initLine() {
     gLine.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + heightLine + ")")
-        .call(d3.axisBottom(xLine))
+        .call(d3.axisBottom(xLine).ticks(10))
         .append("text")
         .attr("transform",
             "translate(" + (widthLine/2) + " ," +
