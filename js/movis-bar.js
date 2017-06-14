@@ -6,10 +6,14 @@ var selectedX = document.getElementById("selectX").value;
 var selectedY= document.getElementById("selectY").value;
 var firstBinIdx = 0;
 
+var movieSerie,
+    movieLegend,
+    svgBar;
+
 function getGenreList(data){
     var genreArrays = d3.nest()
         .key(function (d){return d.genres;})
-        .entries(pdfAge).map(function(d){return d.key;});
+        .entries(data).map(function(d){return d.key;});
     var genreArray = [];
     genreArrays.forEach(function(d){
         genreArray = genreArray.concat(d.split(","));
@@ -108,7 +112,7 @@ function getZValue(){
     // categorical - last one unknown
     } else if (selectedY == "gender") {
         return d3.scaleOrdinal()
-            .range(["steelblue","indianred"])
+            .range(["indianred","steelblue"])
             .domain(columnsGender.slice(0,columnsAge.length-1));
 
     // categorical - last two ambiguous/unknown
@@ -124,7 +128,7 @@ function getZValue(){
             /*["steelblue","indianred","#8dd3c7","#ffffb3",
             "#bebada","#fdb462","#b3de69","#fccde5",
             "#bc80bd","#ccebc5","#ffed6f"]*/
-            .domain(columnsOrigin.slice(0,columnsAge.length-2));
+            .domain(columnsOrigin.slice(0,columnsOrigin.length-2));
     }
 }
 
@@ -137,8 +141,8 @@ function initBar() {
     console.log("Initializing bar chart...");
 
     // Chart dimension + position
-    var svgBar = d3.select("#svgBar"),
-        margin = { top: 10, right: 50, bottom: 50, left: 50 },
+    svgBar = d3.select("#svgBar");
+    var  margin = { top: 10, right: 50, bottom: 50, left: 50 },
         width = svgBar.attr("width") - margin.left - margin.right,
         height = svgBar.attr("height") - margin.top - margin.bottom,
         g = svgBar.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -158,12 +162,11 @@ function initBar() {
         .offset(d3.stackOffsetExpand);
     var selection = getXValues(pdfRow, columns);
 
-    // Axes domain
+    // X-axis domain
     x.domain(selection.map(function(d) { return d.xKey; }));
-    //z.domain(d3.extent(columns.slice(2)));
 
     // Draw Bars
-    var serie = g.selectAll(".serie")
+    movieSerie = g.selectAll(".serie")
         .data(stack.keys(columns.slice(firstBinIdx))(selection))
         .enter().append("g")
         .attr("class", "serie")
@@ -175,7 +178,7 @@ function initBar() {
                 }
 
         });
-    serie.selectAll("rect")
+    movieSerie.selectAll("rect")
         .data(function(d) {
             return d; })
         .enter().append("rect")
@@ -198,14 +201,14 @@ function initBar() {
         .call(d3.axisLeft(y).ticks(10, "%"));
 
     // Draw legend
-    var legend = serie.append("g")
+    movieLegend = movieSerie.append("g")
         .attr("class", "legend")
         .attr("transform", function(d) { var d = d[d.length - 1]; return "translate(" + (x(d.data.xKey) + bandWidth) + "," + ((y(d[0]) + y(d[1])) / 2) + ")"; });
-    legend.append("line")
+    movieLegend.append("line")
         .attr("x1", -6)
         .attr("x2", 6)
         .attr("stroke", "#000");
-    legend.append("text")
+    movieLegend.append("text")
         .attr("x", 9)
         .attr("dy", "0.35em")
         .attr("fill", "#000")
@@ -213,4 +216,19 @@ function initBar() {
         .text(function(d) { return d.key; });
 
     console.log("Done.");
+}
+
+function updateBar(){
+    // Get selected axes
+    selectedX = document.getElementById("selectX").value;
+    selectedY = document.getElementById("selectY").value;
+
+    // Remove old bars
+    movieSerie.remove();
+    movieLegend.remove();
+    svgBar.selectAll(".axis.axis--x").remove();
+    svgBar.selectAll(".axis.axis--y").remove();
+
+
+    initBar();
 }

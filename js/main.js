@@ -78,21 +78,9 @@ function init(error, dataRowAge, dataRowGender, dataRowOrigin, dataAge, info) {
     });
 
     // Distributions for bar chart
-    pdfRowAge = addInfoToBarData(dataRowAge, info)
-        /*dataRowAge.map(function(d,id){
-        d.title = info[id].title;
-        d.year = info[id].year;
-        d.genres = info[id].genres;
-        return d;
-    })*/;
-    pdfRowGender = addInfoToBarData(dataRowGender, info)
-    /*dataRowGender.map(function(d,id){
-     d.title = info[id].title;
-     d.year = info[id].year;
-     d.genres = info[id].genres;
-     return d;
-     })*/;
-     pdfRowOrigin = addInfoToBarData(dataRowOrigin, info);
+    pdfRowAge = addInfoToBarData(dataRowAge, info);
+    pdfRowGender = addInfoToBarData(dataRowGender, info);
+    pdfRowOrigin = addInfoToBarData(dataRowOrigin, info);
 
     // Store labels
     columnsAge = dataRowAge.columns;
