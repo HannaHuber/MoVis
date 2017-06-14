@@ -2,10 +2,6 @@
  * Created by Hanna on 03.06.2017.
  */
 
-// 1-based movie ids
-var startID = 306, // beginning of A
-    endID = 6834; // end of C
-
 var selectedYear = 1950; //document.getElementById("selectYear").value;
 var selectedGenre = document.getElementById("selectGenre").value;
 var selectedGender = document.getElementById("selectGender").value;
@@ -28,7 +24,8 @@ var line = d3.line()
         return yLine(d.density); });
 
 var movieLine,
-	movieLabel;
+	movieLabel,
+    pdf;
 
 function updateFilter(){
     selectedYear = document.getElementById("selectYear").value;
@@ -39,17 +36,30 @@ function updateFilter(){
     updateLine();
 }
 
+function getCurrentPDF(){
+    if (currentY == "age") {
+        return pdfAge;
+    } else if (currentY == "gender") {
+        return pdfGender;
+    } else {
+        return pdfOrigin;
+    }
+}
+
 /*
  * Draw initial line chart
  */
 function initLine() {
     console.log("Initializing line chart...");
 
+    // Get current pdf data
+    pdf = getCurrentPDF();
+
     // Add items to dropdown menu
     var dropdown = document.getElementById("selectYear");
     var years = d3.nest()
         .key(function (d){return d.year;})
-        .entries(pdfAge)
+        .entries(pdf)
         .map(function (d){return d.key;}).sort();
     years.forEach(function(d){
         var option = document.createElement("option");
@@ -58,7 +68,7 @@ function initLine() {
     });
     var combinedGenres = d3.nest()
         .key(function (d){return d.genres;})
-        .entries(pdfAge).map(function(d){return d.key;});
+        .entries(pdf).map(function(d){return d.key;});
     genres = [];
     combinedGenres.forEach(function(d){
         genres = genres.concat(d.split(","));
@@ -73,12 +83,12 @@ function initLine() {
 
     // Axes domain
     xLine.domain(
-        pdfAge.map(function (c){return c.values.map(function (d){return d.age})})[0]
-        //d3.extent(pdfAge.map(function (c){return c.values.map(function (d){return d.age})})[0])
+        pdf.map(function (c){return c.values.map(function (d){return d.age})})[0]
+        //d3.extent(pdf.map(function (c){return c.values.map(function (d){return d.age})})[0])
     );
     yLine.domain([
-        d3.min(pdfAge, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
-        d3.max(pdfAge, function (c) { return d3.max(c.values, function (d) { return d.density; }); })
+        d3.min(pdf, function (c) { return d3.min(c.values, function (d) { return d.density; }); }),
+        d3.max(pdf, function (c) { return d3.max(c.values, function (d) { return d.density; }); })
     ]);
 
     // Draw axes
@@ -144,7 +154,7 @@ function getSelection() {
     console.log("Filtering year: " + selectedYear);
     console.log("Filtering genre: " +selectedGenre);
 
-    var selection = pdfAge;
+    var selection = pdf;
     // filter
     if (selectedYear != "all") {
         selection = selection.filter(function (c) {

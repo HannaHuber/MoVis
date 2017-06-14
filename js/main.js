@@ -13,7 +13,6 @@ function loadData(initMethod){
         .defer(d3.csv,"./data/ageDF_all.csv", parseRow)
         .defer(d3.csv,"./data/genderDF.csv", parseRow)
         .defer(d3.csv,"./data/originDF_all.csv", parseRow)
-        .defer(d3.csv,"./data/age_all_id_1-15k_cs.csv", parseAge)
         .defer(d3.csv,"./data/movie_info.csv",parseInfo)
         .await(initMethod);
 }
@@ -60,22 +59,28 @@ function addInfoToBarData(data, info) {
     });
 }
 
-function init(error, dataRowAge, dataRowGender, dataRowOrigin, dataAge, info) {
+function getPDFFromCast(castRow, columns, yValue){
+    return castRow.map(function(d){
+        data = {};
+        data.id = d.id;
+        data.title = d.title;
+        data.genres = d.genres;
+        data.year = d.year;
+        var values = [];
+        columns.forEach(function(c,j) {
+            tmp = {};
+            tmp[yValue] = c;
+            tmp.density = d[c];
+            values[j] = tmp;
+        });
+        data.values = values;
+        return data;
+    });
+}
+
+function init(error, dataRowAge, dataRowGender, dataRowOrigin, info) {
     console.log("Processing data...");
     if (error) { console.log(error); }
-
-    // Distributions for line chart
-    /*pdfAge = dataAge.columns.slice(startID,endID+1).map(function (id) {
-        return {
-            id: id-1,
-            title: info[id-1].title,
-            year: info[id-1].year,
-            genres: info[id-1].genres,
-            values: dataAge.map(function (d) {
-                return { age: d.age, density: d[id]/d3.sum(dataAge,function(d){return d[id]}) };
-            })
-        };
-    });*/
 
     // Distributions for bar chart
     pdfRowAge = addInfoToBarData(dataRowAge, info);
@@ -87,22 +92,10 @@ function init(error, dataRowAge, dataRowGender, dataRowOrigin, dataAge, info) {
     columnsGender = dataRowGender.columns;
     columnsOrigin = dataRowOrigin.columns;
 
-    pdfAge = pdfRowAge.map(function(d){
-        data = {};
-        data.id = d.id;
-        data.title = d.title;
-        data.genres = d.genres;
-        data.year = d.year;
-        var values = [];
-        columnsAge.forEach(function(c,j) {
-            tmp = {};
-            tmp.age = c;
-            tmp.density = d[c];
-            values[j] = tmp;
-        });
-        data.values = values;
-        return data;
-    });
+    // Distributions for line chart
+    pdfAge = getPDFFromCast(pdfRowAge, columnsAge, "age");
+    pdfGender = getPDFFromCast(pdfRowGender, columnsGender, "gender");
+    pdfOrigin = getPDFFromCast(pdfRowOrigin, columnsOrigin, "origin");
 
     // Draw charts
     initBar();

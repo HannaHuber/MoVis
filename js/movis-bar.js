@@ -2,8 +2,8 @@
  * Created by Hanna on 04.06.2017.
  */
 
-var selectedX = document.getElementById("selectX").value;
-var selectedY= document.getElementById("selectY").value;
+var currentX = document.getElementById("selectX").value;
+currentY= document.getElementById("selectY").value;
 var firstBinIdx = 0;
 
 var movieSerie,
@@ -26,7 +26,7 @@ function getGenreList(data){
 }
 
 function getXKey(d) {
-    if (selectedX == "year") {
+    if (currentX == "year") {
         return d.year;
     } else {
         return d.genres;
@@ -34,7 +34,7 @@ function getXKey(d) {
 }
 
 function getXValues(pdfRow, columns){
-    if (selectedX == "year") {
+    if (currentX == "year") {
         return d3.nest()
             .key(function (d){return getXKey(d);})
             .sortKeys(d3.ascending)
@@ -43,7 +43,7 @@ function getXValues(pdfRow, columns){
                 columns.forEach (function(c){
                     barData[c] = d3.mean(v, function(d) {
                         return d[c]; });
-                })
+                });
                 return  barData;
             })
             .entries(pdfRow)
@@ -79,9 +79,9 @@ function getXValues(pdfRow, columns){
 }
 
 function getYColumns(){
-    if (selectedY == "age") {
+    if (currentY == "age") {
         return columnsAge;
-    } else if (selectedY == "gender") {
+    } else if (currentY == "gender") {
         return columnsGender;
     } else {
         return columnsOrigin;
@@ -89,9 +89,9 @@ function getYColumns(){
 }
 
 function getPDFRow(){
-    if (selectedY == "age") {
+    if (currentY == "age") {
         return pdfRowAge;
-    } else if (selectedY == "gender") {
+    } else if (currentY == "gender") {
         return pdfRowGender;
     } else {
         return pdfRowOrigin;
@@ -100,7 +100,7 @@ function getPDFRow(){
 
 function getZValue(){
     // quantitative -last field is unknown
-    if (selectedY == "age") {
+    if (currentY == "age") {
         var seqColors = [];
         d3.range(0,13).forEach(function(i){
             seqColors[i] = d3.interpolateBlues(i/13);
@@ -110,7 +110,7 @@ function getZValue(){
                 .range(seqColors)
                 .domain(d3.extent(columnsAge.slice(0,columnsAge.length-1)));
     // categorical - last one unknown
-    } else if (selectedY == "gender") {
+    } else if (currentY == "gender") {
         return d3.scaleOrdinal()
             .range(["indianred","steelblue"])
             .domain(columnsGender.slice(0,columnsAge.length-1));
@@ -134,8 +134,9 @@ function getZValue(){
 
 function initBar() {
 
-    var columns = getYColumns();
-    var pdfRow = getPDFRow();
+    // Get data for selected attribute
+    columns = getYColumns();
+    pdfRow = getPDFRow();
 
 
     console.log("Initializing bar chart...");
@@ -220,8 +221,8 @@ function initBar() {
 
 function updateBar(){
     // Get selected axes
-    selectedX = document.getElementById("selectX").value;
-    selectedY = document.getElementById("selectY").value;
+    currentX = document.getElementById("selectX").value;
+    currentY = document.getElementById("selectY").value;
 
     // Remove old bars
     movieSerie.remove();
