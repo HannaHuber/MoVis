@@ -12,7 +12,7 @@
     fill: steelblue;
 }
 .axis path {
-    display: none;
+    /*display: none;*/
 }
 
 /* Dropdown menus*/

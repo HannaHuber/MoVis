@@ -2,13 +2,13 @@
  * Created by Hanna on 03.06.2017.
  */
 
-var selectedYear = 1950; //document.getElementById("selectYear").value;
+var selectedYear = document.getElementById("selectYear").value;
 var selectedGenre = document.getElementById("selectGenre").value;
 var selectedGender = document.getElementById("selectGender").value;
 var isAverage = false; //document.getElementById("checkboxAverage").checked;
 
 var svgLine = d3.select("#svgLine"),
-    marginLine = { top: 10, right: 100, bottom: 50, left: 50 },
+    marginLine = { top: 10, right: 100, bottom: 100, left: 40 },
     widthLine = svgLine.attr("width") - marginLine.left - marginLine.right,
     heightLine = svgLine.attr("height") - marginLine.top - marginLine.bottom,
     gLine = svgLine.append("g").attr("transform", "translate(" + marginLine.left + "," + marginLine.top + ")");
@@ -25,7 +25,9 @@ var line = d3.line()
 
 var movieLine,
 	movieLabel,
-    pdf;
+    pdf,
+    pdfF,
+    pdfM;
 
 function updateFilter(){
     selectedYear = document.getElementById("selectYear").value;
@@ -39,8 +41,16 @@ function updateFilter(){
     movieLabel.remove();
 
     // Draw new lines
-    var selection = getSelection();
-    drawLines(selection);
+    if (["f","cmp"].includes(selectedGender)){
+        drawLines(getSelection("f"), selectedGender=="cmp");
+    }
+    if (["m","cmp"].includes(selectedGender)){
+        drawLines(getSelection("m"),false);
+    }
+    if ("all" == selectedGender){
+        drawLines(getSelection("all"),false);
+    }
+
      /*var selection = getSelection();
     var movie = svgLine.selectAll(".movie")
         .data(selection);
@@ -77,6 +87,20 @@ function getCurrentPDF(){
         return pdfOrigin;
     }
 }
+function getCurrentPDFFemale(){
+    if (currentY == "age") {
+        return pdfAgeF;
+    } else {
+        return pdfOriginF;
+    }
+}
+function getCurrentPDFMale(){
+    if (currentY == "age") {
+        return pdfAgeM;
+    } else {
+        return pdfOriginM;
+    }
+}
 
 /*
  * Draw initial line chart
@@ -86,6 +110,8 @@ function initLine() {
 
     // Get current pdf data
     pdf = getCurrentPDF();
+    pdfF = getCurrentPDFFemale();
+    pdfM = getCurrentPDFMale();
 
     // Init filter options
     addFilterMenu();
@@ -94,8 +120,16 @@ function initLine() {
     drawAxes();
 
     // Init lines
-    var selection = getSelection();
-    drawLines(selection);
+    // Draw new lines
+    if (["f","cmp"].includes(selectedGender)){
+        drawLines(getSelection("f"), selectedGender=="cmp");
+    }
+    if (["m","cmp"].includes(selectedGender)){
+        drawLines(getSelection("m"), false);
+    }
+    if ("all" == selectedGender){
+        drawLines(getSelection("all"), false);
+    }
 
     console.log("Done.");
 }
@@ -150,12 +184,16 @@ function drawAxes(){
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + heightLine + ")")
         .call(d3.axisBottom(xLine).ticks(10))
+        .selectAll("text")
+        .style("text-anchor", "start")
+        .style("font", "8px sans-serif")
+        .attr("transform", 'translate(8,0)rotate(45)')//
         .append("text")
         .attr("transform",
             "translate(" + (widthLine/2) + " ," +
             (heightLine + marginLine.top ) + ")")
         .style("text-anchor", "middle")
-        .text("Age");
+        .text(currentY);
     gLine.append("g")
         .attr("class", "axis axis--y")
         .call(d3.axisLeft(yLine).ticks(10, "%"))
@@ -170,7 +208,7 @@ function drawAxes(){
 /*
 * Draw movie lines
 */
-function drawLines(selection){
+function drawLines(selection, isCompare){
 
     // Draw movie lines
     var movie = gLine.selectAll(".movie")
@@ -180,6 +218,13 @@ function drawLines(selection){
             .append("path")
             .attr("class", "line")
             .attr("d", function (d) { return line(d.values); });
+
+    if (isCompare){
+        movieLine.style({"stroke": "indianred"});
+    }
+    if (isAverage){movieLine.style({"stroke-opacity":"1","stroke-width":"1px"});}
+
+
     movieLine.on("mouseout", function(){
         d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
     });
@@ -204,11 +249,20 @@ function drawLines(selection){
 /*
 * Calculate filtered data
 */
-function getSelection() {
+function getSelection(gender) {
     console.log("Filtering year: " + selectedYear);
     console.log("Filtering genre: " +selectedGenre);
 
-    var selection = pdf;
+    // choose distribution
+    var selection;
+    if (gender == "f"){
+        selection = pdfF;
+    } else if (gender=="m"){
+        selection = pdfM;
+    } else {
+        selection = pdf;
+    }
+
     // filter
     if (selectedYear != "all") {
         selection = selection.filter(function (c) {
