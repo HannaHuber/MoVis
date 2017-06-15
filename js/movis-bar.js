@@ -46,7 +46,7 @@ function getXValues(pdfRow, columns){
                 });
                 return  barData;
             })
-            .entries(pdfRow)
+            .entries(cast)
             .map(function(d) {
                 var barData = {};
                 barData.xKey = +d.key;
@@ -56,11 +56,11 @@ function getXValues(pdfRow, columns){
                 return barData;
             });
     } else {
-        var genres = getGenreList(pdfRow);
+        var genres = getGenreList(cast);
         var xValues = [];
         genres.forEach(function(g, i) {
             // Get all movies of the genre
-            var group = pdfRow
+            var group = cast
                 .filter(function (c) {
                     return c.genres.includes(g);
                 });
@@ -88,13 +88,13 @@ function getYColumns(){
     }
 }
 
-function getPDFRow(){
+function getCast(){
     if (currentY == "age") {
-        return pdfRowAge;
+        return castAge;
     } else if (currentY == "gender") {
-        return pdfRowGender;
+        return castGender;
     } else {
-        return pdfRowOrigin;
+        return castOrigin;
     }
 }
 
@@ -136,7 +136,7 @@ function initBar() {
 
     // Get data for selected attribute
     columns = getYColumns();
-    pdfRow = getPDFRow();
+    cast = getCast();
 
 
     console.log("Initializing bar chart...");
@@ -161,7 +161,7 @@ function initBar() {
     // Stack data
     var stack = d3.stack()
         .offset(d3.stackOffsetExpand);
-    var selection = getXValues(pdfRow, columns);
+    var selection = getXValues(cast, columns);
 
     // X-axis domain
     x.domain(selection.map(function(d) { return d.xKey; }));

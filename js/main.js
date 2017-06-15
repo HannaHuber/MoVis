@@ -4,30 +4,31 @@
 
 /* Main method */
 window.onload = function () {
-    loadData(init);
+    loadData();
 };
 
-function loadData(initMethod){
+function loadData(){
     console.log("Loading data...");
     d3.queue()
         .defer(d3.csv,"./data/ageDF_all.csv", parseRow)
         .defer(d3.csv,"./data/genderDF.csv", parseRow)
         .defer(d3.csv,"./data/originDF_all.csv", parseRow)
         .defer(d3.csv,"./data/movie_info.csv",parseInfo)
-        .await(initMethod);
+        .await(init);
 }
 
-function parseAge(data, _, columns) {
-    console.log("Parsing age data...");
-    data.age = +data.age;
-    for (var i = 1, t = 0, c; i < columns.length; ++i) {
-        // start movie id at 0
-        data[c = columns[i]] =  +data[c];
-    }
-    return data;
+function loadGenderData(){
+    console.log("Loading gender data...");
+    d3.queue()
+        .defer(d3.csv,"./data/ageDF_f.csv", parseRow)
+        .defer(d3.csv,"./data/ageDF_m.csv", parseRow)
+        .defer(d3.csv,"./data/originDF_f.csv", parseRow)
+        .defer(d3.csv,"./data/originDF_m.csv", parseRow)
+        .await(initGenderData);
 }
 
 function parseRow(data, i, columns) {
+    console.log("Parsing cast data...");
     data.id = i; // convert from 1-based in file to 0-based
     for (var j = 0, s = 0, c; j < columns.length; ++j) {
         // start movie id at 0
@@ -78,31 +79,75 @@ function getPDFFromCast(castRow, columns, yValue){
     });
 }
 
-function init(error, dataRowAge, dataRowGender, dataRowOrigin, info) {
+function init(error, dataAge, dataGender, dataOrigin, info) {
     console.log("Processing data...");
     if (error) { console.log(error); }
 
+    movieInfo = info;
+
     // Distributions for bar chart
-    pdfRowAge = addInfoToBarData(dataRowAge, info);
-    pdfRowGender = addInfoToBarData(dataRowGender, info);
-    pdfRowOrigin = addInfoToBarData(dataRowOrigin, info);
+    castAge = addInfoToBarData(dataAge.slice(305,18684), info);
+    castGender = addInfoToBarData(dataGender.slice(305,18684), info);
+    castOrigin = addInfoToBarData(dataOrigin.slice(305,18684), info);
 
     // Store labels
-    columnsAge = dataRowAge.columns;
-    columnsGender = dataRowGender.columns;
-    columnsOrigin = dataRowOrigin.columns;
+    columnsAge = dataAge.columns;
+    columnsGender = dataGender.columns;
+    columnsOrigin = dataOrigin.columns;
 
-    // Distributions for line chart
-    pdfAge = getPDFFromCast(pdfRowAge, columnsAge, "age");
-    pdfGender = getPDFFromCast(pdfRowGender, columnsGender, "gender");
-    pdfOrigin = getPDFFromCast(pdfRowOrigin, columnsOrigin, "origin");
+    /*// Distributions for line chart
+    pdfAge = getPDFFromCast(castAge, columnsAge, "age");
+    pdfGender = getPDFFromCast(castGender, columnsGender, "gender");
+    pdfOrigin = getPDFFromCast(castOrigin, columnsOrigin, "origin");
+
+    // Distributions for female/male cast
+    pdfAgeF = addInfoToBarData(dataAgeF, info);
+    pdfAgeM = addInfoToBarData(dataAgeM, info);
+    //pdfOriginF = addInfoToBarData(dataOriginF, info);
+    //pdfOriginM = addInfoToBarData(dataOriginM, info);
+    pdfAgeF = getPDFFromCast(pdfAgeF, columnsAge, "age");
+    pdfAgeM = getPDFFromCast(pdfAgeM, columnsAge, "age");
+    //pdfOriginF = getPDFFromCast(pdfOriginF, columnsOrigin, "origin");
+    //pdfOriginM = getPDFFromCast(pdfOriginM, columnsOrigin, "origin");*/
 
     // Draw charts
     initBar();
-    initLine();
+    //initLine();
+
+    loadGenderData();
 }
 
 function update() {
     updateBar();
     updateLine();
+}
+
+function initGenderData(error,dataAgeF,dataAgeM, dataOriginF, dataOriginM) {//, dataOriginF, dataOriginM
+    console.log("Processing gender data...");
+    if (error) { console.log(error); }
+
+    // Distributions for line chart
+    pdfAge = getPDFFromCast(castAge, columnsAge, "age");
+    pdfGender = getPDFFromCast(castGender, columnsGender, "gender");
+    pdfOrigin = getPDFFromCast(castOrigin, columnsOrigin, "origin");
+
+    // Distributions for female/male cast
+    //pdfAgeF = addInfoToBarData(dataAgeF, movieInfo);
+    //pdfAgeM = addInfoToBarData(dataAgeM, movieInfo);
+    //pdfOriginF = addInfoToBarData(dataOriginF, info);
+    //pdfOriginM = addInfoToBarData(dataOriginM, info);
+    pdfAgeF = getPDFFromCast(
+        addInfoToBarData(dataAgeF.slice(305,18684), movieInfo),
+        columnsAge, "age");
+    pdfAgeM = getPDFFromCast(
+        addInfoToBarData(dataAgeM.slice(305,18684), movieInfo),
+        columnsAge, "age");
+    /*pdfOriginF = getPDFFromCast(
+        addInfoToBarData(dataOriginF.slice(305,18684), movieInfo),
+        columnsOrigin, "origin");
+    pdfOriginM = getPDFFromCast(
+        addInfoToBarData(dataOriginM.slice(305,18684), movieInfo),
+        columnsOrigin, "origin");*/
+
+    initLine();
 }
