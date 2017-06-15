@@ -8,7 +8,7 @@ var selectedGender = document.getElementById("selectGender").value;
 var isAverage = false; //document.getElementById("checkboxAverage").checked;
 
 var svgLine = d3.select("#svgLine"),
-    marginLine = { top: 10, right: 50, bottom: 50, left: 50 },
+    marginLine = { top: 10, right: 100, bottom: 50, left: 50 },
     widthLine = svgLine.attr("width") - marginLine.left - marginLine.right,
     heightLine = svgLine.attr("height") - marginLine.top - marginLine.bottom,
     gLine = svgLine.append("g").attr("transform", "translate(" + marginLine.left + "," + marginLine.top + ")");
@@ -40,6 +40,8 @@ function updateFilter(){
 
     // Draw new lines
     var selection = getSelection();
+    drawLines(selection);
+     /*var selection = getSelection();
     var movie = svgLine.selectAll(".movie")
         .data(selection);
     movieLine = movie.enter()
@@ -56,14 +58,14 @@ function updateFilter(){
     movieLabel =
         movie.enter()
             .append("text")
-            .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
+            .datum(function (d) { return { id: d.id, title: d.title, value: d.values[d.values.length - 1] }; })
             .attr("transform", function (d) { return "translate(" + xLine(d.value[currentY]) + "," + yLine(d.value.density) + ")"; })
             .attr("x", 3)
             .attr("dy", "0.35em")
             .style("font", "10px sans-serif")
             .text(function (d) {
                 return "id:" + d.id + ", title:" + d["title"];
-            });
+            });*/
 }
 
 function getCurrentPDF(){
@@ -85,6 +87,23 @@ function initLine() {
     // Get current pdf data
     pdf = getCurrentPDF();
 
+    // Init filter options
+    addFilterMenu();
+
+    // Init axes
+    drawAxes();
+
+    // Init lines
+    var selection = getSelection();
+    drawLines(selection);
+
+    console.log("Done.");
+}
+
+/*
+* Add dropdown menu for filtering options
+*/
+function addFilterMenu(){
     // Add items to dropdown menu
     var dropdown = document.getElementById("selectYear");
     var years = d3.nest()
@@ -110,7 +129,12 @@ function initLine() {
         option.text = d.key;
         dropdown.add(option);
     });
+}
 
+/*
+* Draw x- and y-axis
+*/
+function drawAxes(){
     // Axes domain
     xLine.domain(
         pdf.map(function (c){return c.values.map(function (d){return d[currentY]})})[0]
@@ -142,17 +166,20 @@ function initLine() {
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Density");
-
+}
+/*
+* Draw movie lines
+*/
+function drawLines(selection){
 
     // Draw movie lines
-    var selection = getSelection();
     var movie = gLine.selectAll(".movie")
         .data(selection);
     movieLine =
         movie.enter()
-        .append("path")
-        .attr("class", "line")
-        .attr("d", function (d) { return line(d.values); });
+            .append("path")
+            .attr("class", "line")
+            .attr("d", function (d) { return line(d.values); });
     movieLine.on("mouseout", function(){
         d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
     });
@@ -163,20 +190,17 @@ function initLine() {
 
     // Draw labels
     movieLabel =
-    movie.enter()
-        .append("text")
-        .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
-        .attr("transform", function (d) { return "translate(" + xLine(d.value[currentY]) + "," + yLine(d.value.density) + ")"; })
-        .attr("x", 3)
-        .attr("dy", "0.35em")
-        .style("font", "10px sans-serif")
-        .text(function (d) {
-            return "id:" + d.id + ", title:" + d["title"];
-        });
-
-    console.log("Done.");
+        movie.enter()
+            .append("text")
+            .datum(function (d) { return { id: d.id, title: d.title, value: d.values[d.values.length - 1] }; })
+            .attr("transform", function (d) { return "translate(" + xLine(d.value[currentY]) + "," + yLine(d.value.density) + ")"; })
+            .attr("x", 3)
+            .attr("dy", "0.35em")
+            .style("font", "10px sans-serif")
+            .text(function (d) {
+                return "id:" + d.id + ", title:" + d.title;
+            });
 }
-
 /*
 * Calculate filtered data
 */
@@ -207,10 +231,10 @@ function getSelection() {
                     return c.values;}).map(function(d,i){return d[k];}), function(d){return d.density;});
             }
             var tmp = c.values.map(function(d,i) {
-                return {
-                    age:d[currentY],
-                    density: meanDensities[i]
-                };
+                data = {};
+                data[currentY] = d[currentY];
+                data["density"] = meanDensities[i];
+                return data;
             });
             return {
                 id:"-",
@@ -220,9 +244,8 @@ function getSelection() {
                 values: tmp
                 };
         });
-        //selection = selection[0];
+        selection = [selection[0]];
     }
-    //selection.forEach(function(d){console.log(d.title);});
     return selection;
 }
 
