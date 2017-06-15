@@ -15,6 +15,8 @@ var legendColumnScale = {
     origin: 18
 };
 
+
+
 function getGenreList(data){
     var genreArrays = d3.nest()
         .key(function (d){return d.genres;})
@@ -57,7 +59,7 @@ function getXValues(pdfRow, columns){
                 barData.xKey = +d.key;
                 columns.forEach (function(c){
                     barData[c] = d.value[c];
-                })
+                });
                 return barData;
             });
     } else {
@@ -75,7 +77,7 @@ function getXValues(pdfRow, columns){
              columns.forEach (function (o){
                  gMeans[o] = d3.mean(group, function(d) {
                      return d[o]; });
-             })
+             });
             xValues[i] = gMeans;
         });
         console.log(xValues);
@@ -173,6 +175,24 @@ function initBar() {
         height = svgBar.attr("height") - margin.top - margin.bottom,
         g = svgBar.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    // Prep the tooltip bits, initial display is hidden
+    var tooltip = svgBar.append("g")
+        .attr("class", "tooltip")
+        .style("display", "none");
+
+    tooltip.append("rect")
+        .attr("width", 60)
+        .attr("height", 20)
+        .attr("fill", "white")
+        .style("opacity", 0.5);
+
+    tooltip.append("text")
+        .attr("x", 30)
+        .attr("dy", "1.2em")
+        .style("text-anchor", "middle")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold");
+
     // Axes range
     var x = d3.scaleBand()
         .rangeRound([0, width])
@@ -213,7 +233,17 @@ function initBar() {
         .attr("y", function(d) {
             return y(d[1]); })
         .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-        .attr("width", bandWidth);
+        .attr("width", bandWidth)
+        .on("mouseover", function() { tooltip.style("display", null); })
+        .on("mouseout", function() { tooltip.style("display", "none"); })
+        .on("mousemove", function(d,i) {
+            var xPosition = d3.mouse(this)[0] - 5;
+            var yPosition = d3.mouse(this)[1] - 5;
+            tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+            tooltip.select("text").text(
+                d3.select(this.parentNode).datum().key + ":\n" + Math.round(1000*(d[1]-d[0])/10) + "%"
+            );
+        });
 
     // Draw axes
     g.append("g")
@@ -228,19 +258,6 @@ function initBar() {
         .call(d3.axisLeft(y).ticks(10, "%"));
 
     // Draw legend
-    /*movieLegend = g.append("g")
-    .attr("class", "legend")
-      .attr("transform", function(d) { var d = d[d.length - 1]; return "translate(" + (x(d.data.xKey) + bandWidth) + "," + ((y(d[0]) + y(d[1])) / 2) + ")"; });
-    movieLegend.append("line")
-        .attr("x1", -6)
-        .attr("x2", 6)
-        .attr("stroke", "#000");
-    movieLegend.append("text")
-        .attr("x", 9)
-        .attr("dy", "0.35em")
-        .attr("fill", "#000")
-        .style("font", "10px sans-serif")
-        .text(function(d) { return d.key; })*/
     var legendRectSize = 10;
     var legendSpacing = 4;
     movieLegend = g.selectAll('.legend')
@@ -263,8 +280,6 @@ function initBar() {
         .attr('y', legendRectSize - legendSpacing)
         .style("font", "8px sans-serif")
         .text(function(d) { return d; });
-
-
 
     console.log("Done.");
 }
