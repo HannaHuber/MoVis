@@ -23,6 +23,7 @@ function loadData(){
 }
 
 function loadGenderData(){
+    d3.selectAll('.line-view').classed('hidden', false);
     d3.selectAll('.spinningLine').classed('hidden', false);
 
     console.log("Loading gender data...");
@@ -124,12 +125,27 @@ function init(error, dataAge, dataGender, dataOrigin, info) {
     initBar();
     //initLine();
 
-    loadGenderData();
+    //loadGenderData();
 }
 
 function update() {
     updateBar();
-    updateLine();
+    if (isLoadedGenderData){
+        updateLine();
+    }
+}
+
+function toggleLineView(){
+    if (d3.selectAll('.line-view').classed('hidden')){
+        d3.selectAll('.line-view').classed('hidden', false);
+        if (isLoadedGenderData){
+            updateLine();
+        } else {
+            loadGenderData();
+        }
+    } else {
+        d3.selectAll('.line-view').classed('hidden', true);
+    }
 }
 
 function initGenderData(error,dataAgeF,dataAgeM, dataOriginF, dataOriginM) {//, dataOriginF, dataOriginM
@@ -160,4 +176,6 @@ function initGenderData(error,dataAgeF,dataAgeM, dataOriginF, dataOriginM) {//, 
         columnsOrigin, "origin");
 
     initLine();
+
+    isLoadedGenderData = true;
 }

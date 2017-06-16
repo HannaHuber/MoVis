@@ -5,19 +5,20 @@
     <title>MoVis</title>
     <script type="text/javascript" src="http://mbostock.github.io/d3/d3.js"></script>
     <link rel="stylesheet" href="css/movis.css">
-</head>
+    </head>
 
 <body>
     <header>
         <h1 align="center" style="color:steelblue;">MoVis</h1>
         <p align="center" class=subtitle" style="color:steelblue;">Movie Society Visualizer</p>
         <img  class="logo" src="img/director-chair.svg">
-        <hr style="color:steelblue;">
+        <hr>
     </header>
 
     <!-- Bar View -->
     <div>
         <h2 align="left" style="color:steelblue;">Distribution Overview</h2>
+        <hr>
         <p class="text" align="left">Select the cast attribute whose distribution you want to examine on the x-axis.<br>
         Select the movie attribute for which you want to compare the distributions on the y-axis.</p>
         <div align="right" class="dropdown">
@@ -45,35 +46,40 @@
 
     <!-- Line View -->
     <div>
-        <h2 align="left" style="color:steelblue;">Filter Individual Distributions</h2>
-        <p class="text" align="left">Select one or more movie attributes to filter the results.</p>
-        <div align="right" class="dropdown">
-        <p id="filterYear" style="color:steelblue;">Year
-            <select align="right" id="selectYear" onchange="updateFilter()">
-                <option value="all">All</option>
-            </select>
-        </p>
-        <p id="filterGenre" style="color:steelblue;">Genre
-            <select align="right" id="selectGenre" onchange="updateFilter()">
-                <option value="all">All</option>
-            </select>
-        </p>
-        <p id="filterGender" style="color:steelblue;">Gender
-            <select align="right" id="selectGender" onchange="updateFilter()">
-                <option value="all">All</option>
-                <option value="f">Female</option>
-                <option value="m">Male</option>
-                <option value="cmp">Female vs. Male</option>
-            </select>
-        </p>
-        <p id="average"style="color:steelblue;">Average
-            <input type="checkbox" name="checkbox" id="checkboxAverage" value="FALSE" onclick="updateFilter()">
-        </p>
+        <div onclick="toggleLineView()">
+            <h2 align="left" style="color:steelblue;">Filter Individual Distributions</h2>
+            <hr>
         </div>
-    <div id="divLine" align="center">
-        <img class="loader spinningLine spinning hidden" id="lineLoder" src="img/load.svg">
-        <svg class="chart" id="svgLine" width="1300" height="400"></svg>
-    </div>
+        <div  class="line-view hidden">
+            <p class="text" align="left">Select one or more movie attributes to filter the results.</p>
+            <div align="right" class="dropdown">
+            <p id="filterYear" style="color:steelblue;">Year
+                <select align="right" id="selectYear" onchange="updateFilter()">
+                    <option value="all">All</option>
+                </select>
+            </p>
+            <p id="filterGenre" style="color:steelblue;">Genre
+                <select align="right" id="selectGenre" onchange="updateFilter()">
+                    <option value="all">All</option>
+                </select>
+            </p>
+            <p id="filterGender" style="color:steelblue;">Gender
+                <select align="right" id="selectGender" onchange="updateFilter()">
+                    <option value="all">All</option>
+                    <option value="f">Female</option>
+                    <option value="m">Male</option>
+                    <option value="cmp">Female vs. Male</option>
+                </select>
+            </p>
+            <p id="average"style="color:steelblue;">Average
+                <input type="checkbox" name="checkbox" id="checkboxAverage" value="FALSE" onclick="updateFilter()">
+            </p>
+            </div>
+            <div id="divLine" align="center">
+                <img class="loader spinningLine spinning hidden" id="lineLoder" src="img/load.svg">
+                <svg class="chart" id="svgLine" width="1300" height="400"></svg>
+            </div>
+        </div>
     </div>
 
     <!-- Credits -->
@@ -98,7 +104,8 @@
             columnsOrigin,
             castAge,
             castGender,
-            castOrigin;
+            castOrigin,
+            isLoadedGenderData = false;
     </script>
 
     <!-- D3 Scripts -->
