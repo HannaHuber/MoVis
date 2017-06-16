@@ -2,56 +2,79 @@
  * Created by Hanna on 08.06.2017.
  */
 
-var start = 305,
-    end = 1000;//15365;
+// Increase performance by loading only a part of the dataset
+var start = 305, // A
+    end = 1000;//15365; // K
+
 /* Main method */
 window.onload = function () {
     loadData();
 };
-
+/*
+* Loads cast data from csv files
+*/
 function loadData(){
+    // Start loader animation
+    d3.selectAll('.spinningBar').classed('hidden', false);
     console.log("Loading data...");
 
-    d3.selectAll('.spinningBar').classed('hidden', false);
-
+    // Load age, gender, origin and info files and process together
     d3.queue()
-        .defer(d3.csv,"./data/ageDF_all.csv", parseRow)
-        .defer(d3.csv,"./data/genderDF.csv", parseRow)
-        .defer(d3.csv,"./data/originDF_all.csv", parseRow)
+        .defer(d3.csv,"./data/ageDF_all.csv", parseAttribute)
+        .defer(d3.csv,"./data/genderDF.csv", parseAttribute)
+        .defer(d3.csv,"./data/originDF_all.csv", parseAttribute)
         .defer(d3.csv,"./data/movie_info.csv",parseInfo)
-        .await(init);
+        .await(prepareBar);
 }
-
+/*
+* Loads additional gender-specific data used by line chart
+ */
 function loadGenderData(){
-    d3.selectAll('.line-view').classed('hidden', false);
+    // Start loader animation
     d3.selectAll('.spinningLine').classed('hidden', false);
-
     console.log("Loading gender data...");
-    d3.queue()
-        .defer(d3.csv,"./data/ageDF_f.csv", parseRow)
-        .defer(d3.csv,"./data/ageDF_m.csv", parseRow)
-        .defer(d3.csv,"./data/originDF_f.csv", parseRow)
-        .defer(d3.csv,"./data/originDF_m.csv", parseRow)
-        .await(initGenderData);
-}
 
-function parseRow(data, i, columns) {
+    // Load gender-specific and origin files and process together
+    d3.queue()
+        .defer(d3.csv,"./data/ageDF_f.csv", parseAttribute)
+        .defer(d3.csv,"./data/ageDF_m.csv", parseAttribute)
+        .defer(d3.csv,"./data/originDF_f.csv", parseAttribute)
+        .defer(d3.csv,"./data/originDF_m.csv", parseAttribute)
+        .await(prepareLine);
+}
+/*
+* Parses ith row of a cast attribute csv file
+* Calculates normalized density, e.g.
+*           Female, Male, Unknown
+* csv:      4,      10,   2
+* parsed:   0.25, 0.635, 0.125
+*/
+function parseAttribute(data, i, columns) {
     console.log("Parsing cast data...");
-    data.id = i; // convert from 1-based in file to 0-based
+
+    // Store movie id
+    data.id = i;
+
+    // Iterate over cast and store density values
     for (var j = 0, s = 0, c; j < columns.length; ++j) {
-        // start movie id at 0
         data[c = columns[j]] =  +data[c];
         s += data[c = columns[j]];
     }
+    // Normalize density values
     if (s>0){
         for (var j = 0, c; j < columns.length; ++j) {
             data[c = columns[j]] /=  s;
         }
     }
-
     return data;
 }
 
+/*
+ * Parses ith row of the info csv file, e.g.
+ *          Year, Title, Genres
+ * csv:     1988,A Fish Called Wanda,Comedy|Crime
+ * parsed:  1988,"A Fish Called Wanda",["Comedy","Crime"]
+ */
 function parseInfo(data, i, columns) {
     console.log("Parsing meta data...");
     data.id = i;
@@ -61,6 +84,9 @@ function parseInfo(data, i, columns) {
     return data;
 }
 
+/*
+* Adds parsed info to parsed attribute  data
+ */
 function addInfoToBarData(data, info) {
     return data.map(function(d){
         var id = d.id;
@@ -70,14 +96,22 @@ function addInfoToBarData(data, info) {
         return d;
     });
 }
-
+/*
+* Restructures cast data as a probability distribution function (pdf)
+* to be used by line chart
+ */
 function getPDFFromCast(castRow, columns, yValue){
     return castRow.map(function(d){
+        // Create new object
         data = {};
+
+        // Store movie info
         data.id = d.id;
         data.title = d.title;
         data.genres = d.genres;
         data.year = d.year;
+
+        // Create pdf for attribute yValue
         var values = [];
         columns.forEach(function(c,j) {
             tmp = {};
@@ -90,10 +124,15 @@ function getPDFFromCast(castRow, columns, yValue){
     });
 }
 
-function init(error, dataAge, dataGender, dataOrigin, info) {
+/*
+* Callback for loaded attribute files
+* Combines and processes age, gender and origin data and movie info
+ */
+function prepareBar(error, dataAge, dataGender, dataOrigin, info) {
     console.log("Processing data...");
     if (error) { console.log(error); }
 
+    // Store for later use by prepareLine()
     movieInfo = info;
 
     // Distributions for bar chart
@@ -106,49 +145,47 @@ function init(error, dataAge, dataGender, dataOrigin, info) {
     columnsGender = dataGender.columns;
     columnsOrigin = dataOrigin.columns;
 
-    /*// Distributions for line chart
-    pdfAge = getPDFFromCast(castAge, columnsAge, "age");
-    pdfGender = getPDFFromCast(castGender, columnsGender, "gender");
-    pdfOrigin = getPDFFromCast(castOrigin, columnsOrigin, "origin");
-
-    // Distributions for female/male cast
-    pdfAgeF = addInfoToBarData(dataAgeF, info);
-    pdfAgeM = addInfoToBarData(dataAgeM, info);
-    //pdfOriginF = addInfoToBarData(dataOriginF, info);
-    //pdfOriginM = addInfoToBarData(dataOriginM, info);
-    pdfAgeF = getPDFFromCast(pdfAgeF, columnsAge, "age");
-    pdfAgeM = getPDFFromCast(pdfAgeM, columnsAge, "age");
-    //pdfOriginF = getPDFFromCast(pdfOriginF, columnsOrigin, "origin");
-    //pdfOriginM = getPDFFromCast(pdfOriginM, columnsOrigin, "origin");*/
-
-    // Draw charts
+    // Draw bar chart
     initBar();
-    //initLine();
-
-    //loadGenderData();
 }
-
+/*
+* Callback for bar chart y-axis change
+ */
 function update() {
+    // Update bar chart
     updateBar();
-    if (isLoadedGenderData){
+
+    // Update line chart only if it has been initialized
+    if (isInitLine){
         updateLine();
     }
 }
 
+/*
+* Shows/hides the line chart and its description
+ */
 function toggleLineView(){
+    // If line view is inactive
     if (d3.selectAll('.line-view').classed('hidden')){
+        // Show line view
         d3.selectAll('.line-view').classed('hidden', false);
-        if (isLoadedGenderData){
+        if (isInitLine){
+            // Update line chart
             updateLine();
         } else {
+            // Init line chart
             loadGenderData();
         }
     } else {
         d3.selectAll('.line-view').classed('hidden', true);
     }
 }
-
-function initGenderData(error,dataAgeF,dataAgeM, dataOriginF, dataOriginM) {//, dataOriginF, dataOriginM
+/*
+* Callback for loaded gender data
+* Prepares cast data for use by line chart
+* Combines and processes gender-specific age and origin data and movie info
+*/
+function prepareLine(error, dataAgeF, dataAgeM, dataOriginF, dataOriginM) {//, dataOriginF, dataOriginM
     console.log("Processing gender data...");
     if (error) { console.log(error); }
 
@@ -158,10 +195,6 @@ function initGenderData(error,dataAgeF,dataAgeM, dataOriginF, dataOriginM) {//, 
     pdfOrigin = getPDFFromCast(castOrigin, columnsOrigin, "origin");
 
     // Distributions for female/male cast
-    //pdfAgeF = addInfoToBarData(dataAgeF, movieInfo);
-    //pdfAgeM = addInfoToBarData(dataAgeM, movieInfo);
-    //pdfOriginF = addInfoToBarData(dataOriginF, info);
-    //pdfOriginM = addInfoToBarData(dataOriginM, info);
     pdfAgeF = getPDFFromCast(
         addInfoToBarData(dataAgeF.slice(start,end), movieInfo),
         columnsAge, "age");
@@ -175,7 +208,9 @@ function initGenderData(error,dataAgeF,dataAgeM, dataOriginF, dataOriginM) {//, 
         addInfoToBarData(dataOriginM.slice(start,end), movieInfo),
         columnsOrigin, "origin");
 
+    // Draw line chart
     initLine();
 
-    isLoadedGenderData = true;
+    // Update chart status
+    isInitLine = true;
 }

@@ -2,24 +2,29 @@
  * Created by Hanna on 04.06.2017.
  */
 
+// User selections
 var currentX = document.getElementById("selectX").value;
 currentY= document.getElementById("selectY").value;
 
+// Path, axis, label and chart variables
 var movieSerie,
-    movieLegend,
     xLabelBar,
     titleBar,
     svgBar;
 
-var legendColumnScale = {
+// Legend
+var movieLegend,
+    legendColumnScale = {
     age: 5,
     gender: 4,
     origin: 18
-},
+    },
     legendRectSize = 10,
     legendSpacing = 4;
 
-
+/*
+ * Returns list of unique genres from genre arrays
+  */
 function getGenreList(data){
     var genreArrays = d3.nest()
         .key(function (d){return d.genres;})
@@ -35,6 +40,9 @@ function getGenreList(data){
         .map(function(d){return d.key});
 }
 
+/*
+* Returns current movie attribute (year or genre)
+ */
 function getXKey(d) {
     if (currentX == "year") {
         return d.year;
@@ -43,13 +51,19 @@ function getXKey(d) {
     }
 }
 
-function getXValues(pdfRow, columns){
+/*
+ * Calculates mean cast attribute values grouped by movie attribute, e.g.
+ * yValue(year=1988) = mean(movies: movie.year=1988)
+ */
+function getYValues(cast, columns){
     if (currentX == "year") {
         return d3.nest()
+            // Group movies by year
             .key(function (d){return getXKey(d);})
             .sortKeys(d3.ascending)
+            // Calculate mean over all movies for each y
             .rollup(function(v) {
-                var barData ={}         ;
+                var barData ={};
                 columns.forEach (function(c){
                     barData[c] = d3.mean(v, function(d) {
                         return d[c]; });
@@ -67,7 +81,7 @@ function getXValues(pdfRow, columns){
             });
     } else {
         var genres = getGenreList(cast);
-        var xValues = [];
+        var yValues = [];
         genres.forEach(function(g, i) {
             // Get all movies of the genre
             var group = cast
@@ -81,12 +95,15 @@ function getXValues(pdfRow, columns){
                  gMeans[o] = d3.mean(group, function(d) {
                      return d[o]; });
              });
-            xValues[i] = gMeans;
+            yValues[i] = gMeans;
         });
-        return xValues;
+        return yValues;
     }
 }
 
+/*
+ * Returns cast attribute classes
+ */
 function getYColumns(){
     if (currentY == "age") {
         return columnsAge;
@@ -97,6 +114,9 @@ function getYColumns(){
     }
 }
 
+/*
+* Return current cast attribute data
+ */
 function getCast(){
     if (currentY == "age") {
         return castAge;
@@ -107,6 +127,9 @@ function getCast(){
     }
 }
 
+/*
+* Returns color fill values according to cast attribute
+ */
 function getZValue(){
     // quantitative -last field is unknown
     if (currentY == "age") {
@@ -116,10 +139,10 @@ function getZValue(){
         });
         seqColors.push(d3.interpolateBlues(1));
         seqColors.push("grey");
-
         return d3.scaleOrdinal()
                 .range(seqColors)
                 .domain(columnsAge);
+
     // categorical - last one unknown
     } else if (currentY == "gender") {
         return d3.scaleOrdinal()
@@ -158,6 +181,9 @@ function getZValue(){
     }
 }
 
+/*
+ * Draw initial bar chart
+ */
 function initBar() {
 
     console.log("Initializing bar chart...");
@@ -173,17 +199,15 @@ function initBar() {
         height = svgBar.attr("height") - margin.top - margin.bottom,
         g = svgBar.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // Prep the tooltip bits, initial display is hidden
+    // Create tooltip
     var tooltip = svgBar.append("g")
         .attr("class", "tooltip")
         .style("display", "none");
-
     tooltip.append("rect")
         .attr("width", 60)
         .attr("height", 20)
         .attr("fill", "white")
         .style("opacity", 0.5);
-
     tooltip.append("text")
         .attr("x", 30)
         .attr("dy", "1.2em")
@@ -204,7 +228,7 @@ function initBar() {
     // Stack data
     var stack = d3.stack()
         .offset(d3.stackOffsetExpand);
-    var selection = getXValues(cast, columns);
+    var selection = getYValues(cast, columns);
 
     // X-axis domain
     x.domain(selection.map(function(d) { return d.xKey; }));
@@ -293,9 +317,14 @@ function initBar() {
         .text(function(d) { return d; });
 
     console.log("Done.");
+
+    // Stop loader animation
     d3.selectAll('.spinningBar').classed('hidden', true);
 }
 
+/*
+* Gets current user selection and redraws chart
+ */
 function updateBar(){
     // Get selected axes
     currentX = document.getElementById("selectX").value;
@@ -309,5 +338,6 @@ function updateBar(){
     svgBar.selectAll(".axis.axis--x").remove();
     svgBar.selectAll(".axis.axis--y").remove();
 
+    // Redraw chart
     initBar();
 }
