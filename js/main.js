@@ -4,7 +4,7 @@
 
 // Increase performance by loading only a part of the dataset
 var start = 305, // A
-    end = 1000;//15365; // K
+    end = 15365; // K
 
 /* Main method */
 window.onload = function () {
@@ -50,7 +50,6 @@ function loadGenderData(){
 * parsed:   0.25, 0.635, 0.125
 */
 function parseAttribute(data, i, columns) {
-    console.log("Parsing cast data...");
 
     // Store movie id
     data.id = i;
@@ -76,7 +75,6 @@ function parseAttribute(data, i, columns) {
  * parsed:  1988,"A Fish Called Wanda",["Comedy","Crime"]
  */
 function parseInfo(data, i, columns) {
-    console.log("Parsing meta data...");
     data.id = i;
     data.year = +data.year;
     data["title"] = data["title"];
@@ -129,8 +127,9 @@ function getPDFFromCast(castRow, columns, yValue){
 * Combines and processes age, gender and origin data and movie info
  */
 function prepareBar(error, dataAge, dataGender, dataOrigin, info) {
-    console.log("Processing data...");
     if (error) { console.log(error); }
+
+    console.log("Processing data...");
 
     // Store for later use by prepareLine()
     movieInfo = info;
@@ -186,8 +185,9 @@ function toggleLineView(){
 * Combines and processes gender-specific age and origin data and movie info
 */
 function prepareLine(error, dataAgeF, dataAgeM, dataOriginF, dataOriginM) {//, dataOriginF, dataOriginM
-    console.log("Processing gender data...");
     if (error) { console.log(error); }
+
+    console.log("Processing gender-specific data...");
 
     // Distributions for line chart
     pdfAge = getPDFFromCast(castAge, columnsAge, "age");

@@ -240,6 +240,11 @@ function drawAxes(){
 */
 function drawLines(selection, isCompare){
 
+    if (selection.length == 0){
+        console.log("Sorry, no movies match this selection. Choose different filter options.");
+        return;
+    }
+
     // Draw comparison movie lines
     if (isCompare){
         movieLineCompare = gLine.selectAll(".movieCompare")
@@ -248,11 +253,10 @@ function drawLines(selection, isCompare){
             .attr("class", "movieCompare");
 
         movieLineCompare.append("path")
-            .attr("class", "line")
-            .attr("d", function (d) { return line(d.values); })
-            .attr("stroke", "indianred");
+            .attr("class", "line-compare")
+            .attr("d", function (d) { return line(d.values); });
 
-        movieLineCompare.selectAll('.line')
+        movieLineCompare.selectAll('.line-compare')
             .on("mouseout", function(){
                 d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
             })
@@ -269,7 +273,7 @@ function drawLines(selection, isCompare){
             });
         // Highlight if only average line is drawn
         if (isAverage && movieLineCompare != null){
-            movieLineCompare.selectAll('.line')
+            movieLineCompare.selectAll('.line-compare')
                 .attr("stroke-opacity","1")
                 .attr("stroke-width","1px");
             }
@@ -317,14 +321,12 @@ function drawLines(selection, isCompare){
             .style("font", "10px sans-serif")
             .text(function (d) {
                 return "id:" + d.id + ", title:" + d.title;
-            });/**/
+            });
 }
 /*
 * Calculate filtered data
 */
 function getSelection(gender) {
-    console.log("Filtering year: " + selectedYear);
-    console.log("Filtering genre: " +selectedGenre);
 
     // Choose distribution
     var selection;
