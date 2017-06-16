@@ -5,7 +5,7 @@ This is a project for the course Information Visualization at TU Wien.
 Hanna Huber (0 0925230)
 
 # Date 
-Jun 16th 2017
+June 16th 2017
 
 # Implementation
 This application was developped using JetBrains WebStorm and the javascript library D3.
@@ -18,3 +18,13 @@ The preferred browser is Chrome.
 
 # Known Issues
 Due to the large size of the datasets, some operations may take some time. In the filtering view, filtering movies before averaging increases performance.
+The data was taken from the Internet Movie Database [1] and processed using the library imdb-py [2], Tableau Desktop [3] and Matlab [4]. It may contain errors.
+
+# References
+Data:
+[1] IMDb: http://www.imdb.com/
+[2] IMDbPY: http://imdbpy.sourceforge.net/
+[3] Tableau Desktop: https://www.tableau.com/de-de/products/desktop
+[4] Matlab: https://de.mathworks.com/products/matlab.html
+Icon: 
+[5] freepik: http://www.freepik.com/
