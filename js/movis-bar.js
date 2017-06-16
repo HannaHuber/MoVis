@@ -4,17 +4,20 @@
 
 var currentX = document.getElementById("selectX").value;
 currentY= document.getElementById("selectY").value;
-var firstBinIdx = 0;
 
 var movieSerie,
     movieLegend,
+    xLabelBar,
+    titleBar,
     svgBar;
+
 var legendColumnScale = {
     age: 5,
     gender: 4,
     origin: 18
-};
-
+},
+    legendRectSize = 10,
+    legendSpacing = 4;
 
 
 function getGenreList(data){
@@ -80,7 +83,6 @@ function getXValues(pdfRow, columns){
              });
             xValues[i] = gMeans;
         });
-        console.log(xValues);
         return xValues;
     }
 }
@@ -146,13 +148,10 @@ function getZValue(){
             "rgb(127,136,97)", "rgb(238,116,186)", "rgb(219,43,238)"];
         var catColors = [];
         d3.range(0,columnsOrigin.length -2 ).forEach(function(h) {
-            /*catColors.push(d3.hcl(Math.floor(h /4) + 90 * (h % 4), 50, 70));
-             });*/
             catColors.push(catPool[h % catPool.length]);
         });
         catColors.push("lightgrey");
         catColors.push("grey");
-        //d3.shuffle(catColors);
         return d3.scaleOrdinal()
             .range(catColors)
             .domain(columnsOrigin);
@@ -161,16 +160,15 @@ function getZValue(){
 
 function initBar() {
 
+    console.log("Initializing bar chart...");
+
     // Get data for selected attribute
     columns = getYColumns();
     cast = getCast();
 
-
-    console.log("Initializing bar chart...");
-
     // Chart dimension + position
     svgBar = d3.select("#svgBar");
-    var  margin = { top: 50, right: 500, bottom: 50, left: 50 },
+    var  margin = { top: 20, right: 500, bottom: 150, left: 50 },
         width = svgBar.attr("width") - margin.left - margin.right,
         height = svgBar.attr("height") - margin.top - margin.bottom,
         g = svgBar.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -213,7 +211,7 @@ function initBar() {
 
     // Draw Bars
     movieSerie = g.selectAll(".serie")
-        .data(stack.keys(columns.slice(firstBinIdx))(selection))
+        .data(stack.keys(columns)(selection))
         .enter().append("g")
         .attr("class", "serie")
         .attr("fill", function(d) {
@@ -236,7 +234,7 @@ function initBar() {
         .attr("width", bandWidth)
         .on("mouseover", function() { tooltip.style("display", null); })
         .on("mouseout", function() { tooltip.style("display", "none"); })
-        .on("mousemove", function(d,i) {
+        .on("mousemove", function(d) {
             var xPosition = d3.mouse(this)[0] - 5;
             var yPosition = d3.mouse(this)[1] - 5;
             tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
@@ -252,21 +250,34 @@ function initBar() {
         .call(d3.axisBottom(x))
         .selectAll("text")
         .style("text-anchor", "start")
-        .attr("transform", 'rotate(45)translate(8,-3)');//
+        .attr("transform", 'rotate(45)translate(8,-3)');
+    xLabelBar =    g.append("text")
+            .attr("class", "label")
+            .attr("x",(width/2))
+            .attr("y", (height + margin.top +margin.bottom/4))
+            .text(currentX[0].toUpperCase() + currentX.slice(1));//
     g.append("g")
         .attr("class", "axis axis--y")
         .call(d3.axisLeft(y).ticks(10, "%"));
 
+    // Chart title
+    titleBar = g.append("text")
+        .attr("class", "label")
+        .attr("x", (width / 2))
+        .attr("y", 0 - (margin.top / 2))
+        .text(
+            "Overall Distribution of Cast "
+            + currentY[0].toUpperCase() + currentY.slice(1) + " for different "
+            + currentX[0].toUpperCase() + currentX.slice(1) + "s"
+        );
+
     // Draw legend
-    var legendRectSize = 10;
-    var legendSpacing = 4;
     movieLegend = g.selectAll('.legend')
         .data(z.domain())
         .enter()
         .append('g')
         .attr('class', 'legend')
         .attr('transform', function(d, i) {
-            //var height = legendRectSize + legendSpacing;
             var dx = 24 + legendColumnScale[currentY]*(Math.floor((i * legendRectSize) / height))* bandWidth + x(x.domain()[x.domain().length -1]);
             var dy = (i * legendRectSize) % height;
             return 'translate(' + dx + ',' + dy + ')';
@@ -282,6 +293,7 @@ function initBar() {
         .text(function(d) { return d; });
 
     console.log("Done.");
+    d3.selectAll('.spinningBar').classed('hidden', true);
 }
 
 function updateBar(){
@@ -292,6 +304,8 @@ function updateBar(){
     // Remove old bars
     movieSerie.remove();
     movieLegend.remove();
+    xLabelBar.remove();
+    titleBar.remove();
     svgBar.selectAll(".axis.axis--x").remove();
     svgBar.selectAll(".axis.axis--y").remove();
 

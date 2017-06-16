@@ -11,8 +11,44 @@
 .bar {
     fill: steelblue;
 }
-.axis path {
-    /*display: none;*/
+/* Logo */
+.logo {
+    position: relative;
+    display: inline-block;
+    align: center;
+    width: 30px;
+    height: 30px;
+
+}
+/* Loader */
+.loader {
+    position: relative;
+    display: inline-block;
+    align: center;
+    top: 50px;
+    bottom: 0px;
+    width: 30px;
+    height: 30px;
+
+    box-sizing: content-box;
+    -ms-box-sizing:content-box;
+    -moz-box-sizing:content-box;
+    box-sizing:content-box;
+    -webkit-box-sizing:content-box;
+    align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.hidden{
+    visibility: hidden;
+}
+.spinning{
+    animation:spin 1.4s cubic-bezier(0.64, 0.3, 0.33, 0.64) 20; /* max 20 spins as my gpu gets hot, if for example because of a breakpoint, the animation spins longer*/
+}
+@keyframes spin {
+    100% {
+        -webkit-transform: rotate(720deg); transform:rotate(720deg);
+    }
 }
 
 /* Dropdown menus*/
@@ -38,4 +74,22 @@ select{
 h1 {
     margin-bottom: -20px;
 }
-
+h2 {
+    margin-bottom: 0px;
+}
+body {
+    font-family: sans-serif;
+}
+.text {
+    margin-bottom: 1px;
+}
+p {
+    font-size: 14px;
+}
+.label {
+    font-size: 12px;
+    text-anchor: middle;
+}
+.credit {
+    font-size: 8px;
+}

@@ -5,10 +5,10 @@
 var selectedYear = document.getElementById("selectYear").value;
 var selectedGenre = document.getElementById("selectGenre").value;
 var selectedGender = document.getElementById("selectGender").value;
-var isAverage = false; //document.getElementById("checkboxAverage").checked;
+var isAverage = document.getElementById("checkboxAverage").checked;
 
 var svgLine = d3.select("#svgLine"),
-    marginLine = { top: 10, right: 100, bottom: 100, left: 40 },
+    marginLine = { top: 20, right: 100, bottom: 100, left: 40 },
     widthLine = svgLine.attr("width") - marginLine.left - marginLine.right,
     heightLine = svgLine.attr("height") - marginLine.top - marginLine.bottom,
     gLine = svgLine.append("g").attr("transform", "translate(" + marginLine.left + "," + marginLine.top + ")");
@@ -25,9 +25,30 @@ var line = d3.line()
 
 var movieLine,
 	movieLabel,
+    xLabelLine,
+    titleLine,
     pdf,
     pdfF,
     pdfM;
+
+
+// Prep the tooltip bits, initial display is hidden
+var tooltipLine = svgLine.append("g")
+    .attr("class", "tooltip")
+    .style("display", "none");
+
+tooltipLine.append("rect")
+    .attr("width", 60)
+    .attr("height", 20)
+    .attr("fill", "white")
+    .style("opacity", 0.5);
+
+tooltipLine.append("text")
+    .attr("x", 30)
+    .attr("dy", "1.2em")
+    .style("text-anchor", "middle")
+    .attr("font-size", "12px")
+    .attr("font-weight", "bold");
 
 function updateFilter(){
     selectedYear = document.getElementById("selectYear").value;
@@ -132,6 +153,7 @@ function initLine() {
     }
 
     console.log("Done.");
+    d3.selectAll('.spinningLine').classed('hidden', true);
 }
 
 /*
@@ -187,23 +209,36 @@ function drawAxes(){
         .selectAll("text")
         .style("text-anchor", "start")
         .style("font", "8px sans-serif")
-        .attr("transform", 'translate(8,0)rotate(45)')//
-        .append("text")
-        .attr("transform",
-            "translate(" + (widthLine/2) + " ," +
-            (heightLine + marginLine.top ) + ")")
-        .style("text-anchor", "middle")
-        .text(currentY);
+        .attr("transform", 'translate(8,0)rotate(45)');//
+    xLabelLine = gLine.append("text")
+           .attr("class", "label")
+            .attr("x",(widthLine/2))
+            .attr("y", (heightLine + marginLine.top +marginLine.bottom/4))
+            .text(
+                currentY[0].toUpperCase() + currentY.slice(1)
+            );
     gLine.append("g")
         .attr("class", "axis axis--y")
         .call(d3.axisLeft(yLine).ticks(10, "%"))
         .append("text")
+        .attr("class", "label")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - marginLine.left)
         .attr("x",0 - (heightLine / 2))
         .attr("dy", "1em")
-        .style("text-anchor", "middle")
         .text("Density");
+
+    // Chart title
+    titleLine = gLine.append("text")
+        .attr("x", (widthLine / 2))
+        .attr("y", 0 - (marginLine.top / 2))
+        .attr("text-anchor", "middle")
+        .style("font-size", "12px")
+        .text(
+            "Individual "
+            + currentY[0].toUpperCase() + currentY.slice(1)
+            + " Distributions"
+        );
 }
 /*
 * Draw movie lines
@@ -211,31 +246,39 @@ function drawAxes(){
 function drawLines(selection, isCompare){
 
     // Draw movie lines
-    var movie = gLine.selectAll(".movie")
-        .data(selection);
-    movieLine =
-        movie.enter()
-            .append("path")
-            .attr("class", "line")
-            .attr("d", function (d) { return line(d.values); });
+    movieLine = gLine.selectAll(".movie")
+        .data(selection)
+        .enter().append("g")
+        .attr("class", "movie");
 
-    if (isCompare){
+    movieLine.append("path")
+    .attr("class", "line")
+    .attr("d", function (d) { return line(d.values); })
+    .on("mouseout", function(){
+            //d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
+        })
+    .on("mouseover", function(){
+        d3.select(this).style({"stroke-opacity":"1","stroke-width":"1px"});
+        })
+    .on("mousemove", function(d) {
+        var xPosition = d3.mouse(this)[0] - 5;
+        var yPosition = d3.mouse(this)[1] - 5;
+        tooltipLine.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+        tooltipLine.select("text").text(
+            d.age + ":\n" + Math.round(1000*(d.density))/10 + "%"
+        );
+    });
+    if (isCompare && movieLine != null){
         movieLine.style({"stroke": "indianred"});
     }
-    if (isAverage){movieLine.style({"stroke-opacity":"1","stroke-width":"1px"});}
+    if (isAverage && movieLine != null){
+        movieLine.style({"stroke-opacity":"1","stroke-width":"1px"
+        });}
 
-
-    movieLine.on("mouseout", function(){
-        d3.select(this).style({"stroke-opacity":"0.5","stroke-width":"0.5px"});
-    });
-    movie.selectAll(".line").on("mouseover", function(){
-        d3.select(this)
-            .style({"stroke-opacity":"1","stroke-width":"1px"});
-    });
 
     // Draw labels
     movieLabel =
-        movie.enter()
+        gLine.enter()
             .append("text")
             .datum(function (d) { return { id: d.id, title: d.title, value: d.values[d.values.length - 1] }; })
             .attr("transform", function (d) { return "translate(" + xLine(d.value[currentY]) + "," + yLine(d.value.density) + ")"; })
@@ -244,7 +287,7 @@ function drawLines(selection, isCompare){
             .style("font", "10px sans-serif")
             .text(function (d) {
                 return "id:" + d.id + ", title:" + d.title;
-            });
+            });/**/
 }
 /*
 * Calculate filtered data
@@ -305,9 +348,11 @@ function getSelection(gender) {
 
 function updateLine(error, data) {
 
-    // Remove old lines + axes
+    // Remove old lines + axes + title
     movieLine.remove();
     movieLabel.remove();
+    xLabelLine.remove();
+    titleLine.remove();
     svgLine.selectAll(".axis.axis--x").remove();
     svgLine.selectAll(".axis.axis--y").remove();
 

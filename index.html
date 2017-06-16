@@ -8,33 +8,46 @@
 </head>
 
 <body>
-    <h1 align="center" style="color:steelblue;">MoVis</h1>
-    <p align="center" class=subtitle" style="color:steelblue;">Movie Society Visualizer</p>
+    <header>
+        <h1 align="center" style="color:steelblue;">MoVis</h1>
+        <p align="center" class=subtitle" style="color:steelblue;">Movie Society Visualizer</p>
+        <img  class="logo" src="img/director-chair.svg">
+        <hr style="color:steelblue;">
+    </header>
 
     <!-- Bar View -->
+    <div>
+        <h2 align="left" style="color:steelblue;">Distribution Overview</h2>
+        <p class="text" align="left">Select the cast attribute whose distribution you want to examine on the x-axis.<br>
+        Select the movie attribute for which you want to compare the distributions on the y-axis.</p>
+        <div align="right" class="dropdown">
+            <p  style="color:steelblue;">X-Axis
+                <select align="right" id="selectX" onchange="updateBar()">
+                    <option value="year">Year</option>
+                    <option value="genre">Genre</option>
+                </select>
+            </p>
+            <p  style="color:steelblue;">Y-Axis
+                <select align="right"id="selectY" onchange="update()">
+                    <option value="age">Age</option>
+                    <option value="gender">Gender</option>
+                    <option value="origin">Origin</option>
+                </select>
+            </p>
+        </div>
+        <div id="divBar" align="center">
+            <img class="loader spinningBar spinning hidden" id="barLoder" src="img/load.svg">
+            <svg class="chart" id="svgBar" width="1300" height="500"></svg>
+        </div>
+    </div>
 
-    <div align="right" class="dropdown">
-        <p  style="color:steelblue;">X-Axis
-            <select align="right" id="selectX" onchange="updateBar()">
-                <option value="year">Year</option>
-                <option value="genre">Genre</option>
-            </select>
-        </p>
-        <p  style="color:steelblue;">Y-Axis
-            <select align="right"id="selectY" onchange="update()">
-                <option value="age">Age</option>
-                <option value="gender">Gender</option>
-                <option value="origin">Origin</option>
-            </select>
-        </p>
-    </div>
-    <div id="divBar" align="center">
-    <svg class="chart" id="svgBar" width="1300" height="500"></svg>
-    </div>
 
 
     <!-- Line View -->
-    <div align="right" class="dropdown">
+    <div>
+        <h2 align="left" style="color:steelblue;">Filter Individual Distributions</h2>
+        <p class="text" align="left">Select one or more movie attributes to filter the results.</p>
+        <div align="right" class="dropdown">
         <p id="filterYear" style="color:steelblue;">Year
             <select align="right" id="selectYear" onchange="updateFilter()">
                 <option value="all">All</option>
@@ -54,12 +67,18 @@
             </select>
         </p>
         <p id="average"style="color:steelblue;">Average
-            <input type="checkbox" name="checkbox" id="checkboxAverage" value="FALSE" checked onclick="updateFilter()">
+            <input type="checkbox" name="checkbox" id="checkboxAverage" value="FALSE" onclick="updateFilter()">
         </p>
-    </div>
+        </div>
     <div id="divLine" align="center">
-    <svg class="chart" id="svgLine" width="1300" height="400"></svg>
+        <img class="loader spinningLine spinning hidden" id="lineLoder" src="img/load.svg">
+        <svg class="chart" id="svgLine" width="1300" height="400"></svg>
     </div>
+    </div>
+
+    <!-- Credits -->
+    <div class="credit">Data taken from <a href="http://www.imdb.com" title="IMdB">IMdB</a></div>
+    <div class="credit">Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 
     <!-- Global Variables -->
     <script type="text/javascript">

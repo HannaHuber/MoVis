@@ -11,6 +11,9 @@ window.onload = function () {
 
 function loadData(){
     console.log("Loading data...");
+
+    d3.selectAll('.spinningBar').classed('hidden', false);
+
     d3.queue()
         .defer(d3.csv,"./data/ageDF_all.csv", parseRow)
         .defer(d3.csv,"./data/genderDF.csv", parseRow)
@@ -20,6 +23,8 @@ function loadData(){
 }
 
 function loadGenderData(){
+    d3.selectAll('.spinningLine').classed('hidden', false);
+
     console.log("Loading gender data...");
     d3.queue()
         .defer(d3.csv,"./data/ageDF_f.csv", parseRow)
