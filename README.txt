@@ -26,5 +26,9 @@ Data:
 [2] IMDbPY: http://imdbpy.sourceforge.net/
 [3] Tableau Desktop: https://www.tableau.com/de-de/products/desktop
 [4] Matlab: https://de.mathworks.com/products/matlab.html
+Implementation:
+[5] D3: https://d3js.org/
 Icon: 
-[5] freepik: http://www.freepik.com/
+[6] freepik: http://www.freepik.com/
+Color palette:
+[7] Colorgorical: http://vrl.cs.brown.edu/color
